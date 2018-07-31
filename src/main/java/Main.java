@@ -1,18 +1,30 @@
+import org.slf4j.Logger;
 import util.ConfigManager;
+import util.DynamicAPILoader;
 
-import static spark.Spark.get;
+import java.io.IOException;
+
 import static spark.Spark.port;
 
 public class Main {
 
+    final private static Logger LOG = ConfigManager.getConfig().getApplicationLogger(Main.class);
+
     public static void main (String args[]) {
 
-        ConfigManager.getConfig().getApplicationLogger().info("Harbor started");
+        LOG.info("Harbor started");
 
         port(ConfigManager.getConfig().getPort());
 
-        get("/hello", (req, res) -> "Hello World");
+        try {
+            DynamicAPILoader apiLoader = new DynamicAPILoader(ConfigManager.getConfig().getAPIConfig());
+            apiLoader.load();
+        } catch (IOException e) {
+            LOG.error("Application could not load a valid API configuration");
+            e.printStackTrace();
+            System.exit(1);
+        }
 
-        ConfigManager.getConfig().getApplicationLogger().info("Route successfully set");
+        LOG.info("Route successfully set");
     }
 }

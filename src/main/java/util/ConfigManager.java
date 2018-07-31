@@ -22,31 +22,40 @@ public class ConfigManager {
     public static class Config {
 
         // Init config keys
-        final private String HBPPORT = "HARBOR_PORT";
+        final private String HB_PORT = "HARBOR_PORT";
+        final private String HB_API = "HARBOR_API_CONFIG";
         // End config keys
 
-        final private static Logger LOGGER = LoggerFactory.getLogger(Config.class);
+        final private static Logger LOG = LoggerFactory.getLogger(Config.class);
 
         final private int PORT;
+        final private String API_CONFIG_PATH;
 
 
         private Config () {
 
-            LOGGER.debug("Environment variable " + HBPPORT + " set to: " + System.getenv(HBPPORT));
-            if (System.getenv(HBPPORT) != null) {
-                this.PORT = Integer.parseInt(System.getenv(HBPPORT));
+            LOG.debug("Environment variable " + HB_PORT + " set to: " + System.getenv(HB_PORT));
+            if (System.getenv(HB_PORT) != null) {
+                this.PORT = Integer.parseInt(System.getenv(HB_PORT));
             } else {
                 this.PORT = 80;
             }
-            LOGGER.info("Set running port to: " + PORT);
+            LOG.info("Set running port to: " + PORT);
+
+            LOG.debug("Environment variable " + HB_API + " set to: " + System.getenv(HB_API));
+            this.API_CONFIG_PATH = System.getenv(HB_API);
         }
 
-        public int getPort() {
+        public int getPort () {
             return PORT;
         }
 
-        public Logger getApplicationLogger() {
-            return LOGGER;
+        public Logger getApplicationLogger (Class name) {
+            return LoggerFactory.getLogger(name);
+        }
+
+        public String getAPIConfig () {
+            return API_CONFIG_PATH;
         }
     }
 

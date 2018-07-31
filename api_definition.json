@@ -1,0 +1,14 @@
+[
+  {
+    "name": "/testdin",
+    "type": "get",
+    "function": "routes.HelloWorldRoute",
+    "path": [
+      {
+        "name": "/a",
+        "type": "get",
+        "function": "routes.TestRoute"
+      }
+    ]
+  }
+]
