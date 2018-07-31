@@ -4,5 +4,12 @@ jdk:
 - openjdk8
 - oraclejdk9
 sudo: false
+before_script:
+- path="$(pwd)"; \
+cd .. && \
+git clone --recursive https://github.com/kubernetes-client/java && \
+cd java && \
+mvn install && \
+cd $path
 script:
 - mvn compile
