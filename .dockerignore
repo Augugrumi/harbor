@@ -1,0 +1,7 @@
+.gitignore
+.travis.yml
+.idea
+target
+*.log*
+LICENSE
+README.md

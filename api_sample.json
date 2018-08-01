@@ -1,0 +1,7 @@
+[
+  {
+    "name": "/hello",
+    "type": "get",
+    "function": "routes.HelloWorldRoute"
+  }
+]
