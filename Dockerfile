@@ -39,8 +39,8 @@ LABEL description="Harbor Docker image"
 # -HARBOR_API_CONFIG: path to your API configuration json
 ENV HARBOR_API_CONFIG=api_sample.json
 
-RUN mkdir -p /srv/config/
-VOLUME config/
+RUN mkdir -p /config/
+VOLUME /config/
 WORKDIR /srv/
 
 COPY --from=builder /build/target/bundle/harbor.jar /srv/
