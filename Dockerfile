@@ -5,6 +5,9 @@ WORKDIR /build/
 
 COPY . /build/
 
+# Should fix StackOverflow errors
+ARG MAVEN_OPTS="-Xms256m -Xmx1024m -Xss1024k"
+
 # Install maven
 RUN apt-get update &&  \
     apt-get install -y maven git
