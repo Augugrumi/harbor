@@ -1,13 +1,11 @@
 [
   {
-    "name": "/testdin",
-    "type": "get",
-    "function": "routes.HelloWorldRoute",
+    "name": "/vnf",
     "path": [
       {
-        "name": "/a",
-        "type": "get",
-        "function": "routes.TestRoute"
+        "name": "/launch/:id",
+        "type": "post",
+        "function": "routes.vnf.LauncherRoute"
       }
     ]
   }
