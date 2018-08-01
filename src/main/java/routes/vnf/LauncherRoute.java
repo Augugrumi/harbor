@@ -43,7 +43,6 @@ public class LauncherRoute implements Route {
             LOG.info(item.getMetadata().getName());
         }
 
-
         JSONObject res = new JSONObject();
         res.put("result", "ok");
 
