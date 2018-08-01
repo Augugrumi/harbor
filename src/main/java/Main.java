@@ -14,6 +14,10 @@ public class Main {
 
         LOG.info("Harbor started");
 
+        if (ConfigManager.getConfig().isRunningInKubernetes()) {
+            LOG.info("Detected Kubernetes environment");
+        }
+
         port(ConfigManager.getConfig().getPort());
 
         try {

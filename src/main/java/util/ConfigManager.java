@@ -21,15 +21,21 @@ public class ConfigManager {
 
     public static class Config {
 
+        // External env variables
+        final private String K8S_API_ENDPOINT = "KUBERNETES_SERVICE_HOST";
+        // End external env variables
+
         // Init config keys
         final private String HB_PORT = "HARBOR_PORT";
         final private String HB_API = "HARBOR_API_CONFIG";
+        final private String HB_KUBERNETES = "HARBOR_KUBERNETES_URL";
         // End config keys
 
         final private static Logger LOG = LoggerFactory.getLogger(Config.class);
 
         final private int PORT;
         final private String API_CONFIG_PATH;
+        final private String KUBERNETES_URL;
 
 
         private Config () {
@@ -44,6 +50,15 @@ public class ConfigManager {
 
             LOG.debug("Environment variable " + HB_API + " set to: " + System.getenv(HB_API));
             this.API_CONFIG_PATH = System.getenv(HB_API);
+
+            if (System.getenv(HB_KUBERNETES) != null) {
+                this.KUBERNETES_URL = System.getenv(HB_KUBERNETES);
+            } else if (System.getenv(K8S_API_ENDPOINT) != null) {
+                this.KUBERNETES_URL = System.getenv(K8S_API_ENDPOINT);
+            } else {
+                this.KUBERNETES_URL = "localhost";
+            }
+            LOG.debug("Environment variable" + HB_KUBERNETES + " set to: " + this.KUBERNETES_URL);
         }
 
         public int getPort () {
@@ -56,6 +71,14 @@ public class ConfigManager {
 
         public String getAPIConfig () {
             return API_CONFIG_PATH;
+        }
+
+        public String getKubernetesAddress() {
+            return this.KUBERNETES_URL;
+        }
+
+        public boolean isRunningInKubernetes() {
+            return System.getenv(K8S_API_ENDPOINT) != null;
         }
     }
 
