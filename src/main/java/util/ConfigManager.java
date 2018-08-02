@@ -79,7 +79,7 @@ public class ConfigManager {
         }
 
         public String getFullKubernetesAddress() {
-            return this.KUBERNETES_URL + ":" + this.KUBERNETES_PORT;
+            return "https://" + this.KUBERNETES_URL + ":" + this.KUBERNETES_PORT;
         }
 
         public boolean isRunningInKubernetes() {
