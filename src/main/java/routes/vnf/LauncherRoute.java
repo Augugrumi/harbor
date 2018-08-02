@@ -33,7 +33,7 @@ public class LauncherRoute implements Route {
         return yaml.dump(yaml);*/
 
         ApiClient client = Config.defaultClient();
-        client.setBasePath(ConfigManager.getConfig().getKubernetesAddress());
+        client.setBasePath(ConfigManager.getConfig().getFullKubernetesAddress());
         Configuration.setDefaultApiClient(client);
 
         CoreV1Api api = new CoreV1Api();

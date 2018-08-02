@@ -23,6 +23,7 @@ public class ConfigManager {
 
         // External env variables
         final private String K8S_API_ENDPOINT = "KUBERNETES_SERVICE_HOST";
+        final private String K8S_API_PORT = "KUBERNETES_SERVICE_PORT_HTTPS";
         // End external env variables
 
         // Init config keys
@@ -36,6 +37,7 @@ public class ConfigManager {
         final private int PORT;
         final private String API_CONFIG_PATH;
         final private String KUBERNETES_URL;
+        final private String KUBERNETES_PORT;
 
 
         private Config () {
@@ -59,6 +61,9 @@ public class ConfigManager {
                 this.KUBERNETES_URL = "localhost";
             }
             LOG.debug("Environment variable" + HB_KUBERNETES + " set to: " + this.KUBERNETES_URL);
+
+            this.KUBERNETES_PORT = System.getenv(K8S_API_PORT);
+            LOG.debug("Environment variable" + K8S_API_PORT + " set to: " + this.KUBERNETES_PORT);
         }
 
         public int getPort () {
@@ -73,8 +78,8 @@ public class ConfigManager {
             return API_CONFIG_PATH;
         }
 
-        public String getKubernetesAddress() {
-            return this.KUBERNETES_URL;
+        public String getFullKubernetesAddress() {
+            return this.KUBERNETES_URL + this.KUBERNETES_PORT;
         }
 
         public boolean isRunningInKubernetes() {
