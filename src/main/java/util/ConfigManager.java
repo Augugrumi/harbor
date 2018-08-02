@@ -3,6 +3,9 @@ package util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.net.MalformedURLException;
+import java.net.URL;
+
 public class ConfigManager {
 
     private static Config configuration;
@@ -36,8 +39,8 @@ public class ConfigManager {
 
         private int PORT;
         private String API_CONFIG_PATH;
-        final private String KUBERNETES_URL;
-        final private String KUBERNETES_PORT;
+        private String KUBERNETES_URL;
+        private String KUBERNETES_PORT;
 
 
         private Config () {
@@ -92,6 +95,15 @@ public class ConfigManager {
 
         void setAPIConfig(String APIPath) {
             this.API_CONFIG_PATH = APIPath;
+        }
+
+        void setKubernetesAddress(String k8sAddress) throws MalformedURLException {
+
+            URL newURL = new URL(k8sAddress);
+
+            this.KUBERNETES_URL = newURL.getHost();
+            this.KUBERNETES_PORT = newURL.getPort() == -1 ?
+                    String.valueOf(newURL.getDefaultPort()) : String.valueOf(newURL.getPort());
         }
 
         public boolean isRunningInKubernetes() {
