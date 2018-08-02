@@ -79,7 +79,11 @@ public class ConfigManager {
         }
 
         public String getFullKubernetesAddress() {
-            return "https://" + this.KUBERNETES_URL + ":" + this.KUBERNETES_PORT;
+
+            String toAttach = this.KUBERNETES_PORT == null ? "" : ":" + this.KUBERNETES_PORT;
+            String prot = "443".equals(this.KUBERNETES_PORT) || "8443".equals(this.KUBERNETES_PORT) ? "https" : "http";
+
+            return prot + "://" + this.KUBERNETES_URL + toAttach;
         }
 
         void setPort(int port) {
