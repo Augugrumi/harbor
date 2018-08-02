@@ -46,6 +46,7 @@ spec:
       containers:
         - name: harbor
           image: augugrumi/harbor:kubernetes_integration
+          imagePullPolicy: Always
           ports:
             - name: http
               containerPort: 80
