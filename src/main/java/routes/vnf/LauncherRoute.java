@@ -30,10 +30,14 @@ public class LauncherRoute implements Route {
         yaml.load(body);
         yaml.setName(request.params(":id"));
 
-        return yaml.dump(yaml);*/
+        return yaml.dump(yaml);
 
         ApiClient client = Config.defaultClient();
         client.setBasePath(ConfigManager.getConfig().getFullKubernetesAddress());
+        Configuration.setDefaultApiClient(client);*/
+
+        ApiClient client = Config.defaultClient();
+        client.setBasePath("kubernetes.default");
         Configuration.setDefaultApiClient(client);
 
         CoreV1Api api = new CoreV1Api();
