@@ -1,4 +1,6 @@
+import org.apache.commons.cli.ParseException;
 import org.slf4j.Logger;
+import util.ArgParser;
 import util.ConfigManager;
 import util.DynamicAPILoader;
 
@@ -12,8 +14,16 @@ public class Main {
 
     public static void main (String args[]) {
 
-        LOG.info("Harbor started");
+        ArgParser parser = new ArgParser(args);
+        try {
+            parser.parse();
+        } catch (ParseException e) {
+            LOG.error("The application failed to correctly parse the supplied arguments");
+            e.printStackTrace();
+            System.exit(1);
+        }
 
+        LOG.info("Harbor started");
         if (ConfigManager.getConfig().isRunningInKubernetes()) {
             LOG.info("Detected Kubernetes environment");
         }

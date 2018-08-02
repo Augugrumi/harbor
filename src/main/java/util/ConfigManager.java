@@ -34,8 +34,8 @@ public class ConfigManager {
 
         final private static Logger LOG = LoggerFactory.getLogger(Config.class);
 
-        final private int PORT;
-        final private String API_CONFIG_PATH;
+        private int PORT;
+        private String API_CONFIG_PATH;
         final private String KUBERNETES_URL;
         final private String KUBERNETES_PORT;
 
@@ -80,6 +80,14 @@ public class ConfigManager {
 
         public String getFullKubernetesAddress() {
             return "https://" + this.KUBERNETES_URL + ":" + this.KUBERNETES_PORT;
+        }
+
+        void setPort(int port) {
+            this.PORT = port;
+        }
+
+        void setAPIConfig(String APIPath) {
+            this.API_CONFIG_PATH = APIPath;
         }
 
         public boolean isRunningInKubernetes() {
