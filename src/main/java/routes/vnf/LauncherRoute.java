@@ -37,7 +37,7 @@ public class LauncherRoute implements Route {
         Configuration.setDefaultApiClient(client);*/
 
         ApiClient client = Config.defaultClient();
-        client.setBasePath("kubernetes.default");
+        client.setBasePath("https://kubernetes.default");
         Configuration.setDefaultApiClient(client);
 
         CoreV1Api api = new CoreV1Api();
