@@ -1,17 +1,15 @@
 package routes.vnf;
 
-import io.kubernetes.client.ApiClient;
-import io.kubernetes.client.Configuration;
-import io.kubernetes.client.apis.CoreV1Api;
-import io.kubernetes.client.models.V1Pod;
-import io.kubernetes.client.models.V1PodList;
-import io.kubernetes.client.util.Config;
+import k8s.K8sAPI;
+import k8s.K8sFactory;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import spark.Request;
 import spark.Response;
 import spark.Route;
 import util.ConfigManager;
+
+import java.net.URL;
 
 public class LauncherRoute implements Route {
 
@@ -22,7 +20,7 @@ public class LauncherRoute implements Route {
 
         LOG.debug("LauncherRoute called ");
 
-        // TODO create a parser family based on the type of data sent. For the moment, we just assume yalm is sent
+        // TODO create a parser family based on the type of data sent. For the moment, we just assume yaml is sent
         /*String body = request.body();
 
         Yaml yaml = new Yaml();
@@ -32,24 +30,25 @@ public class LauncherRoute implements Route {
 
         return yaml.dump(yaml);*/
 
-        ApiClient client = Config.defaultClient();
+        /*ApiClient client = Config.defaultClient();
         client.setBasePath(ConfigManager.getConfig().getFullKubernetesAddress());
         Configuration.setDefaultApiClient(client);
 
         /*ApiClient client = Config.defaultClient();
         client.setBasePath("https://kubernetes.default");
-        Configuration.setDefaultApiClient(client);*/
+        Configuration.setDefaultApiClient(client);
 
         CoreV1Api api = new CoreV1Api();
         V1PodList list =
                 api.listPodForAllNamespaces(null, null, null, null, null, null, null, null, null);
         for (V1Pod item : list.getItems()) {
             LOG.info(item.getMetadata().getName());
-        }
+        }*/
 
-        JSONObject res = new JSONObject();
-        res.put("result", "ok");
+        K8sAPI api = K8sFactory.getCliAPI();
+        JSONObject toSendBack = new JSONObject();
+        toSendBack.put("result", "ok");
 
-        return res;
+        return api.createFromYaml(new URL("/home/centos/busyboxplus.yaml"), res -> res.getAttachment().toString());
     }
 }
