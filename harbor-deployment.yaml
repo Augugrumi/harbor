@@ -2,8 +2,21 @@
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: harbor-creator-saccount
+  name: harbor-creator
   namespace: kube-system
+---
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRoleBinding
+metadata:
+  name: harbor-creator
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+subjects:
+  - kind: ServiceAccount
+    name: harbor-creator
+    namespace: kube-system
 ---
 apiVersion: v1
 kind: ConfigMap
