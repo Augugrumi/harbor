@@ -28,14 +28,17 @@ public class CommandExec {
                 LOG.info("Executing task n: " + i);
 
                 try {
-                    if (p1.exitValue() != 0 && p2.isAlive()) {
+                    if (p2.isAlive()) {
                         pipe(p1.getInputStream(), p2.getOutputStream());
+                        p2.waitFor();
                     } else {
                         throw new IOException();
                     }
                 } catch (IOException e) {
 
                     LOG.error("Failed to pipe processes: " + p1.toString() + " and " + p2.toString());
+                    e.printStackTrace();
+                } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
             }
@@ -90,10 +93,11 @@ public class CommandExec {
         byte[] buffer = new byte[512];
         int read;
 
-        while ((read = in.read(buffer, 0, buffer.length)) != -1) {
-            LOG.info("Getting new data: \n" + new String(buffer));
+        while ((read = in.read(buffer, 0, buffer.length)) > -1) {
+            LOG.debug("Getting new data: \n" + new String(buffer));
             out.write(buffer, 0, read);
         }
+        out.close();
     }
 
     public static class Result {

@@ -34,7 +34,7 @@ public class K8sCli implements K8sAPI {
             List<Process> kubelet = new LinkedList<>();
             kubelet.add(new ProcessBuilder("systemctl", "status", "kubelet").start());
             kubelet.add(new ProcessBuilder("grep", "Active").start());
-            kubelet.add(new ProcessBuilder("cut", "-d", "' '", "-f5").start());
+            kubelet.add(new ProcessBuilder("cut", "-d", " ", "-f5").start());
 
             List<Process> kubectl = new LinkedList<>();
             kubectl.add(new ProcessBuilder("which", "kubectl").start());
@@ -45,13 +45,18 @@ public class K8sCli implements K8sAPI {
                     .build()
                     .exec();
 
-            if (!"active".equals(chainOfCommandsOutput.get(kubelet))) {
+            if (!"active".equals(chainOfCommandsOutput.get(kubelet).getOutput())) {
                 LOG.error("Kubectl output: " + chainOfCommandsOutput.get(kubelet).getOutput());
                 LOG.error("Kubectl exit code: " + chainOfCommandsOutput.get(kubelet).getExitCode());
                 throw new K8sInitFailureException();
             }
 
-            kubectlPath = chainOfCommandsOutput.get(kubectl).getOutput();
+            if (chainOfCommandsOutput.get(kubectl).getExitCode() == 0) {
+                kubectlPath = chainOfCommandsOutput.get(kubectl).getOutput();
+            } else {
+                LOG.error("Which cannot find kubectl command");
+                throw new K8sInitFailureException();
+            }
             LOG.debug("Kubectl path is: " + kubectlPath);
             LOG.debug("Kubectl exit code is: " + chainOfCommandsOutput.get(kubectl).getExitCode());
 
