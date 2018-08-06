@@ -25,7 +25,7 @@ public class CommandExec {
 
                 Process p1 = processInPipe.get(i);
                 Process p2 = processInPipe.get(i + 1);
-                LOG.info("Executing task n: " + i);
+                LOG.trace("Executing task n: " + i);
 
                 try {
                     if (p2.isAlive()) {
@@ -43,13 +43,11 @@ public class CommandExec {
                 }
             }
 
-            LOG.info("Hey");
-
             Process last = processInPipe.get(processInPipe.size() - 1);
             try {
-                LOG.info("Waiting for last task to finish...");
+                LOG.trace("Waiting for last task to finish...");
                 last.waitFor();
-                LOG.info("Done");
+                LOG.trace("Done");
             } catch (InterruptedException e) {
                 LOG.error("Last process didn't finish in time");
                 e.printStackTrace();
