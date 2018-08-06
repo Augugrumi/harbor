@@ -89,24 +89,27 @@ public class K8sCli implements K8sAPI {
 
         LOG.debug("Create from YAML response: \n" + commandRes.getOutput());
 
-        if (commandRes.getExitCode() == 0) {
-            LOG.info("Resources for file: " + yaml.getAbsolutePath() + "successfully created");
-        }
 
         final String out = commandRes.getOutput();
         final String[] lines = out.split(System.getProperty("line.separator"));
         final JSONArray array = new JSONArray();
 
-        for (final String line : lines) {
-            final String[] words = line.split(" ");
-            final JSONObject toAdd = new JSONObject();
+        if (commandRes.getExitCode() == 0) {
+            LOG.info("Resources for file: " + yaml.getAbsolutePath() + "successfully created");
+            for (final String line : lines) {
+                final String[] words = line.split(" ");
+                final JSONObject toAdd = new JSONObject();
 
-            final String[] typeAndName = words[0].split("/");
-            toAdd.put("type", typeAndName[0]);
-            toAdd.put("name", typeAndName[1]);
-            toAdd.put("status", words[1]);
+                final String[] typeAndName = words[0].split("/");
+                toAdd.put("type", typeAndName[0]);
+                toAdd.put("name", typeAndName[1]);
+                toAdd.put("status", words[1]);
 
-            array.put(toAdd);
+                array.put(toAdd);
+            }
+        } else {
+            final JSONObject error = new JSONObject();
+            error.put("status", "error");
         }
         payload.put("output", array);
 
