@@ -3,6 +3,7 @@ package util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 
@@ -33,6 +34,7 @@ public class ConfigManager {
         final private String HB_PORT = "HARBOR_PORT";
         final private String HB_API = "HARBOR_API_CONFIG";
         final private String HB_KUBERNETES = "HARBOR_KUBERNETES_URL";
+        final private String HB_YAML_STORAGE = "HARBOR_YAML_STORAGE_PATH";
         // End config keys
 
         final private static Logger LOG = LoggerFactory.getLogger(Config.class);
@@ -41,6 +43,7 @@ public class ConfigManager {
         private String API_CONFIG_PATH;
         private String KUBERNETES_URL;
         private String KUBERNETES_PORT;
+        final private String YAML_STORAGE;
 
 
         private Config () {
@@ -67,6 +70,20 @@ public class ConfigManager {
 
             this.KUBERNETES_PORT = System.getenv(K8S_API_PORT);
             LOG.debug("Environment variable" + K8S_API_PORT + " set to: " + this.KUBERNETES_PORT);
+
+            if (System.getenv(HB_YAML_STORAGE) != null) {
+                this.YAML_STORAGE = System.getenv(HB_YAML_STORAGE);
+            } else {
+                this.YAML_STORAGE = System.getProperty("user.home") +
+                        File.separator + ".harbor" +
+                        File.separator + "yaml";
+
+                File firstRunCheck = new File(this.YAML_STORAGE);
+                if (firstRunCheck.isDirectory() && !firstRunCheck.exists()) {
+                    firstRunCheck.mkdirs();
+                }
+            }
+            LOG.debug("Environment variable" + HB_YAML_STORAGE + " set to: " + this.YAML_STORAGE);
         }
 
         public int getPort () {
@@ -88,6 +105,11 @@ public class ConfigManager {
 
             return prot + "://" + this.KUBERNETES_URL + toAttach;
         }
+
+        public String getYamlStorageFolder() {
+            return this.YAML_STORAGE;
+        }
+
 
         void setPort(int port) {
             this.PORT = port;

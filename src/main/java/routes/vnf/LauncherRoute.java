@@ -9,7 +9,9 @@ import spark.Response;
 import spark.Route;
 import util.ConfigManager;
 
-import java.net.URL;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 
 public class LauncherRoute implements Route {
 
@@ -21,34 +23,34 @@ public class LauncherRoute implements Route {
         LOG.debug("LauncherRoute called ");
 
         // TODO create a parser family based on the type of data sent. For the moment, we just assume yaml is sent
-        /*String body = request.body();
+        final File yamlFolder = new File(ConfigManager.getConfig().getYamlStorageFolder());
 
-        Yaml yaml = new Yaml();
+        if (!yamlFolder.exists()) {
+            if (!yamlFolder.mkdirs()) {
+                throw new IOException("Impossible to create YAML storage folder. Check your filesystem permissions");
+            }
+        }
 
-        yaml.load(body);
-        yaml.setName(request.params(":id"));
+        // TODO consider the case where the filename is ending with .yml
+        final String filename = request.params(":id").endsWith(".yaml") ?
+                request.params(":id") : request.params(":id") + ".yaml";
+        final File yamlFile = new File(ConfigManager.getConfig().getYamlStorageFolder() + File.separator + filename);
 
-        return yaml.dump(yaml);*/
+        // TODO we need to validate this YAML before executing it!!
+        if (yamlFile.createNewFile()) {
 
-        /*ApiClient client = Config.defaultClient();
-        client.setBasePath(ConfigManager.getConfig().getFullKubernetesAddress());
-        Configuration.setDefaultApiClient(client);
+            FileOutputStream yamlToSave = new FileOutputStream(yamlFile);
+            yamlToSave.write(request.bodyAsBytes());
+            yamlToSave.flush();
+            yamlToSave.close();
 
-        /*ApiClient client = Config.defaultClient();
-        client.setBasePath("https://kubernetes.default");
-        Configuration.setDefaultApiClient(client);
-
-        CoreV1Api api = new CoreV1Api();
-        V1PodList list =
-                api.listPodForAllNamespaces(null, null, null, null, null, null, null, null, null);
-        for (V1Pod item : list.getItems()) {
-            LOG.info(item.getMetadata().getName());
-        }*/
-
-        K8sAPI api = K8sFactory.getCliAPI();
-        JSONObject toSendBack = new JSONObject();
-        toSendBack.put("result", "ok");
-
-        return api.createFromYaml(new URL("file:///home/centos/busyboxplus.yaml"), res -> res.getAttachment().toString());
+            final K8sAPI api = K8sFactory.getCliAPI();
+            return api.createFromYaml(yamlFile.toURI().toURL(), res -> res.getAttachment().toString());
+        } else {
+            final JSONObject toSendBack = new JSONObject();
+            toSendBack.put("result", "error");
+            toSendBack.put("reason", "A YAML with the same key already exists");
+            return toSendBack;
+        }
     }
 }
