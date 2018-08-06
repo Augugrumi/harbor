@@ -7,10 +7,17 @@ import k8s.exceptions.K8sInitFailureException;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
+import util.CommandExec;
 import util.ConfigManager;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 public class K8sCli implements K8sAPI {
 
@@ -24,38 +31,35 @@ public class K8sCli implements K8sAPI {
 
         try {
             // Check if kubelet is up and Kubectl exists
-            ProcessBuilder kubelet = new ProcessBuilder(
-                    "systemctl", "status", "kubelet", "|", "grep Active", "|", "cut", "-d", "' '", "-f5"
-                    // systemctl status kubelet | grep Active | cut -d" " -f5
-            );
-            kubelet.redirectErrorStream(false);
-            if (!"active".equals(getOutputFromCommand(kubelet))) {
+            List<Process> kubelet = new LinkedList<>();
+            kubelet.add(new ProcessBuilder("systemctl", "status", "kubelet").start());
+            kubelet.add(new ProcessBuilder("grep", "Active").start());
+            kubelet.add(new ProcessBuilder("cut", "-d", "' '", "-f5").start());
+
+            List<Process> kubectl = new LinkedList<>();
+            kubectl.add(new ProcessBuilder("which", "kubectl").start());
+
+            Map<List<Process>, CommandExec.Result> chainOfCommandsOutput = new CommandExec.Builder()
+                    .add(kubelet)
+                    .add(kubectl)
+                    .build()
+                    .exec();
+
+            if (!"active".equals(chainOfCommandsOutput.get(kubelet))) {
+                LOG.error("Kubectl output: " + chainOfCommandsOutput.get(kubelet).getOutput());
+                LOG.error("Kubectl exit code: " + chainOfCommandsOutput.get(kubelet).getExitCode());
                 throw new K8sInitFailureException();
             }
 
-            ProcessBuilder kubectl = new ProcessBuilder(
-                    "which", "kubectl"
-            );
-            kubectlPath = getOutputFromCommand(kubectl);
+            kubectlPath = chainOfCommandsOutput.get(kubectl).getOutput();
             LOG.debug("Kubectl path is: " + kubectlPath);
+            LOG.debug("Kubectl exit code is: " + chainOfCommandsOutput.get(kubectl).getExitCode());
+
         } catch (IOException e) {
             e.printStackTrace();
             throw new K8sInitFailureException();
         }
-    }
 
-    private String getOutputFromCommand(ProcessBuilder process) throws IOException {
-        Process prc = process.start();
-        InputStream is = prc.getInputStream();
-        BufferedReader reader = new BufferedReader(new InputStreamReader(is));
-
-        StringBuilder res = new StringBuilder();
-        String line = null;
-        while ((line = reader.readLine()) != null) {
-            res.append(line);
-        }
-
-        return res.toString();
     }
 
     @Override
@@ -70,10 +74,16 @@ public class K8sCli implements K8sAPI {
             throw new FileNotFoundException();
         }
 
-        ProcessBuilder resCreatorYaml = new ProcessBuilder("kubectl", "create", "-f", yaml.getAbsolutePath());
-        resCreatorYaml.redirectErrorStream(false);
+        List<Process> yamlcreation = new ArrayList<>();
+        yamlcreation.add(new ProcessBuilder("kubectl", "create", "-f", yaml.getAbsolutePath()).start());
 
-        String out = getOutputFromCommand(resCreatorYaml);
+        String out = new CommandExec.Builder()
+                .add(yamlcreation)
+                .build()
+                .exec()
+                .get(yamlcreation)
+                .getOutput();
+
         LOG.debug("Create from YAML response: \n" + out);
 
         String[] lines = out.split(System.getProperty("line.separator"));
