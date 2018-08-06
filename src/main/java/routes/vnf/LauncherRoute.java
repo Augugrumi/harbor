@@ -49,6 +49,6 @@ public class LauncherRoute implements Route {
         JSONObject toSendBack = new JSONObject();
         toSendBack.put("result", "ok");
 
-        return api.createFromYaml(new URL("/home/centos/busyboxplus.yaml"), res -> res.getAttachment().toString());
+        return api.createFromYaml(new URL("file:///home/centos/busyboxplus.yaml"), res -> res.getAttachment().toString());
     }
 }
