@@ -111,6 +111,7 @@ public class K8sCli implements K8sAPI {
             final JSONObject error = new JSONObject();
             error.put("status", "error");
             error.put("reason", out);
+            array.put(error);
         }
         payload.put("output", array);
 
