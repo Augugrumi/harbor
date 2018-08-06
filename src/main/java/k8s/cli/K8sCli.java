@@ -81,24 +81,30 @@ public class K8sCli implements K8sAPI {
         List<Process> yamlcreation = new ArrayList<>();
         yamlcreation.add(new ProcessBuilder("kubectl", "create", "-f", yaml.getAbsolutePath()).start());
 
-        String out = new CommandExec.Builder()
+        final CommandExec.Result commandRes = new CommandExec.Builder()
                 .add(yamlcreation)
                 .build()
                 .exec()
-                .get(yamlcreation)
-                .getOutput();
+                .get(yamlcreation);
 
-        LOG.debug("Create from YAML response: \n" + out);
+        LOG.debug("Create from YAML response: \n" + commandRes.getOutput());
 
-        String[] lines = out.split(System.getProperty("line.separator"));
-        JSONArray array = new JSONArray();
+        if (commandRes.getExitCode() == 0) {
+            LOG.info("Resources for file: " + yaml.getAbsolutePath() + "successfully created");
+        }
 
-        for (String line : lines) {
-            String[] words = line.split(" ");
-            JSONObject toAdd = new JSONObject();
-            toAdd.put("type", words[0]);
-            toAdd.put("name", words[1]);
-            toAdd.put("status", words[2]);
+        final String out = commandRes.getOutput();
+        final String[] lines = out.split(System.getProperty("line.separator"));
+        final JSONArray array = new JSONArray();
+
+        for (final String line : lines) {
+            final String[] words = line.split(" ");
+            final JSONObject toAdd = new JSONObject();
+
+            final String[] typeAndName = words[0].split("/");
+            toAdd.put("type", typeAndName[0]);
+            toAdd.put("name", typeAndName[1]);
+            toAdd.put("status", words[1]);
 
             array.put(toAdd);
         }
