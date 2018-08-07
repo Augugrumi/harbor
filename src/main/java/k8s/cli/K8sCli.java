@@ -79,6 +79,8 @@ public class K8sCli implements K8sAPI {
         }
 
         List<Process> yamlcreation = new ArrayList<>();
+
+        // FIXME use discovered kubectl path?
         yamlcreation.add(new ProcessBuilder("kubectl", "create", "-f", yaml.getAbsolutePath()).start());
 
         final CommandExec.Result commandRes = new CommandExec.Builder()
