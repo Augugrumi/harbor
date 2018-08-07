@@ -33,7 +33,7 @@ public class CreateVnfRoute implements Route {
         final File yamlFile = new File(ConfigManager.getConfig().getYamlStorageFolder() + File.separator + filename);
 
         final JSONObject toSendBack = new JSONObject();
-        // TODO we need to validate this YAML before executing it!!
+
         if (yamlFile.createNewFile()) {
 
             FileOutputStream yamlToSave = new FileOutputStream(yamlFile);
