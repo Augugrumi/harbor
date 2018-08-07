@@ -1,7 +1,5 @@
 package routes.vnf;
 
-import k8s.K8sAPI;
-import k8s.K8sFactory;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import spark.Request;
@@ -13,14 +11,14 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-public class LauncherRoute implements Route {
+public class CreateVnfRoute implements Route {
 
-    final private static Logger LOG = ConfigManager.getConfig().getApplicationLogger(LauncherRoute.class);
+    final private static Logger LOG = ConfigManager.getConfig().getApplicationLogger(CreateVnfRoute.class);
 
     @Override
     public Object handle(Request request, Response response) throws Exception {
 
-        LOG.debug("LauncherRoute called");
+        LOG.debug("CreateVnfRoute called");
 
         // TODO create a parser family based on the type of data sent. For the moment, we just assume yaml is sent
         final File yamlFolder = new File(ConfigManager.getConfig().getYamlStorageFolder());
@@ -31,10 +29,10 @@ public class LauncherRoute implements Route {
             }
         }
 
-        // TODO consider the case where the filename is ending with .yml
         final String filename = Utils.validateFileName(request.params(":id"));
         final File yamlFile = new File(ConfigManager.getConfig().getYamlStorageFolder() + File.separator + filename);
 
+        final JSONObject toSendBack = new JSONObject();
         // TODO we need to validate this YAML before executing it!!
         if (yamlFile.createNewFile()) {
 
@@ -43,15 +41,13 @@ public class LauncherRoute implements Route {
             yamlToSave.flush();
             yamlToSave.close();
 
-            LOG.info("Getting new launch request for " + filename);
+            LOG.info("Creation for " + filename + " completed");
 
-            final K8sAPI api = K8sFactory.getCliAPI();
-            return api.createFromYaml(yamlFile.toURI().toURL(), res -> res.getAttachment().toString());
+            toSendBack.put("result", "ok");
         } else {
-            final JSONObject toSendBack = new JSONObject();
             toSendBack.put("result", "error");
             toSendBack.put("reason", "A YAML with the same key already exists");
-            return toSendBack;
         }
+        return toSendBack;
     }
 }
