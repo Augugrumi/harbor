@@ -11,7 +11,6 @@ public class CommandExec {
     final private List<List<Process>> listOfTask;
 
     private CommandExec(List<List<Process>> listOfTask) {
-
         this.listOfTask = listOfTask;
     }
 
@@ -35,7 +34,6 @@ public class CommandExec {
                         throw new IOException();
                     }
                 } catch (IOException e) {
-
                     LOG.error("Failed to pipe processes: " + p1.toString() + " and " + p2.toString());
                     e.printStackTrace();
                 } catch (InterruptedException e) {
@@ -72,7 +70,6 @@ public class CommandExec {
         if (prc.exitValue() != 0) {
             is = prc.getErrorStream();
         } else {
-
             is = prc.getInputStream();
         }
 
@@ -83,7 +80,6 @@ public class CommandExec {
         while ((line = reader.readLine()) != null) {
             res.append(line);
         }
-
         return new Result(prc.exitValue(), res.toString());
     }
 
@@ -131,7 +127,6 @@ public class CommandExec {
         }
 
         public Builder addInPipe(Process... listOfProcessesInPipe) {
-
             final List<Process> toQueue = new LinkedList<>();
             toQueue.addAll(Arrays.asList(listOfProcessesInPipe));
             processes.add(toQueue);
@@ -139,9 +134,7 @@ public class CommandExec {
         }
 
         public Builder addSequentialProcess(Process... newProcesses) {
-
             for (final Process p : newProcesses) {
-
                 List<Process> toQueue = new ArrayList<>();
                 toQueue.add(p);
                 processes.add(toQueue);

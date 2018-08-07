@@ -44,6 +44,8 @@ public class LauncherRoute implements Route {
             yamlToSave.flush();
             yamlToSave.close();
 
+            LOG.info("Getting new launch request for " + filename);
+
             final K8sAPI api = K8sFactory.getCliAPI();
             return api.createFromYaml(yamlFile.toURI().toURL(), res -> res.getAttachment().toString());
         } else {

@@ -95,7 +95,7 @@ public class K8sCli implements K8sAPI {
         final JSONArray array = new JSONArray();
 
         if (commandRes.getExitCode() == 0) {
-            LOG.info("Resources for file: " + yaml.getAbsolutePath() + "successfully created");
+            LOG.info("Resources for file: " + yaml.getAbsolutePath() + " successfully created");
             for (final String line : lines) {
                 final String[] words = line.split(" ");
                 final JSONObject toAdd = new JSONObject();
