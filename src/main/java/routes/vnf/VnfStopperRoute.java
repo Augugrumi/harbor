@@ -30,7 +30,7 @@ public class VnfStopperRoute implements Route {
             LOG.info("Getting new stop request for " + filename);
 
             final K8sAPI api = K8sFactory.getCliAPI();
-            return api.createFromYaml(yamlFile.toURI().toURL(), res -> res.getAttachment().toString());
+            return api.deleteFromYaml(yamlFile.toURI().toURL(), res -> res.getAttachment().toString());
         } else {
             final ResponseCreator toSendBack = new ResponseCreator(ResponseCreator.ResponseType.ERROR);
             toSendBack.add(ResponseCreator.Fields.REASON, "The requested YAML doesn't exist");
