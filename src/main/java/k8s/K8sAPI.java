@@ -8,4 +8,6 @@ import java.net.URL;
 public interface K8sAPI {
 
     Object createFromYaml(URL pathToFile, K8sResultConverter converter) throws K8sException, IOException;
+
+    Object deleteFromYaml(URL pathToFile, K8sResultConverter converter) throws K8sException, IOException;
 }

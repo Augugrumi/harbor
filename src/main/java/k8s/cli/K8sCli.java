@@ -7,6 +7,7 @@ import k8s.exceptions.K8sInitFailureException;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
+import routes.util.ResponseCreator;
 import util.CommandExec;
 import util.ConfigManager;
 
@@ -69,8 +70,8 @@ public class K8sCli implements K8sAPI {
     @Override
     public Object createFromYaml(URL pathToFile, K8sResultConverter converter)
             throws K8sException, IOException {
-        // TODO add support for online URL (like www.example.com/example.yaml or https://www.example.com/example.yaml)
-        JSONObject payload = new JSONObject();
+
+        ResponseCreator toSendBack;
 
         File yaml = new File(pathToFile.getPath());
 
@@ -78,16 +79,16 @@ public class K8sCli implements K8sAPI {
             throw new FileNotFoundException();
         }
 
-        List<Process> yamlcreation = new ArrayList<>();
+        List<Process> yamlCreation = new ArrayList<>();
 
         // FIXME use discovered kubectl path?
-        yamlcreation.add(new ProcessBuilder("kubectl", "create", "-f", yaml.getAbsolutePath()).start());
+        yamlCreation.add(new ProcessBuilder(kubectlPath, "create", "-f", yaml.getAbsolutePath()).start());
 
         final CommandExec.Result commandRes = new CommandExec.Builder()
-                .add(yamlcreation)
+                .add(yamlCreation)
                 .build()
                 .exec()
-                .get(yamlcreation);
+                .get(yamlCreation);
 
         LOG.debug("Create from YAML response: \n" + commandRes.getOutput());
 
@@ -98,6 +99,7 @@ public class K8sCli implements K8sAPI {
 
         if (commandRes.getExitCode() == 0) {
             LOG.info("Resources for file: " + yaml.getAbsolutePath() + " successfully created");
+            toSendBack = new ResponseCreator(ResponseCreator.ResponseType.OK);
             for (final String line : lines) {
                 final String[] words = line.split(" ");
                 final JSONObject toAdd = new JSONObject();
@@ -109,17 +111,55 @@ public class K8sCli implements K8sAPI {
 
                 array.put(toAdd);
             }
+            toSendBack.add(ResponseCreator.Fields.CONTENT, array);
         } else {
-            final JSONObject error = new JSONObject();
-            error.put("status", "error");
-            error.put("reason", out);
-            array.put(error);
+            toSendBack = new ResponseCreator(ResponseCreator.ResponseType.ERROR);
+            toSendBack.add(ResponseCreator.Fields.REASON, out);
         }
-        payload.put("output", array);
+
 
         // The output of the terminal will be parsed into a JSON
-        K8sCommandJSONOutput res = new K8sCommandJSONOutput(true, payload);
+        K8sCommandJSONOutput res = new K8sCommandJSONOutput(true, new JSONObject(toSendBack.toString()));
+        return converter.convert(res);
+    }
 
+    @Override
+    public Object deleteFromYaml(URL pathToFile, K8sResultConverter converter) throws K8sException, IOException {
+
+        ResponseCreator toSendBack;
+
+        File yamlToDelete = new File(pathToFile.getPath());
+
+        if (!yamlToDelete.exists()) {
+            throw new FileNotFoundException();
+        }
+
+        List<Process> yamlCreation = new ArrayList<>();
+
+        // FIXME use discovered kubectl path?
+        yamlCreation.add(new ProcessBuilder(kubectlPath, "delete", "-f", yamlToDelete.getAbsolutePath()).start());
+
+        final CommandExec.Result commandRes = new CommandExec.Builder()
+                .add(yamlCreation)
+                .build()
+                .exec()
+                .get(yamlCreation);
+
+        LOG.debug("Delete from YAML response: \n" + commandRes.getOutput());
+
+
+        final String out = commandRes.getOutput();
+
+        // TODO perform better error and success parsing
+        if (commandRes.getExitCode() == 0) {
+            toSendBack = new ResponseCreator(ResponseCreator.ResponseType.OK);
+            toSendBack.add(ResponseCreator.Fields.CONTENT, out);
+        } else {
+            toSendBack = new ResponseCreator(ResponseCreator.ResponseType.ERROR);
+            toSendBack.add(ResponseCreator.Fields.REASON, out);
+        }
+
+        K8sCommandJSONOutput res = new K8sCommandJSONOutput(true, new JSONObject(toSendBack.toString()));
         return converter.convert(res);
     }
 }

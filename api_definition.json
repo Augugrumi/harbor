@@ -8,6 +8,11 @@
         "function": "routes.vnf.VnfLauncherRoute"
       },
       {
+        "name": "/stop/:id",
+        "type": "get",
+        "function": "routes.vnf.VnfStopRoute"
+      },
+      {
         "name": "/create/:id",
         "type": "post",
         "function": "routes.vnf.CreateVnfRoute"
