@@ -18,7 +18,7 @@ public class UpdateVnfRoute implements Route {
 
         // Update = Deletion + Creation
         Route deletion = new DeleteVnfRoute();
-        Route creation = new UpdateVnfRoute();
+        Route creation = new CreateVnfRoute();
 
         JSONObject toSendBack = new JSONObject();
 
