@@ -4,8 +4,8 @@
     "path": [
       {
         "name": "/launch/:id",
-        "type": "post",
-        "function": "routes.vnf.LauncherRoute"
+        "type": "get",
+        "function": "routes.vnf.VnfLauncherRoute"
       },
       {
         "name": "/create/:id",
