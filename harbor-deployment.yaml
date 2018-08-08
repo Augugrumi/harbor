@@ -1,0 +1,114 @@
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: harbor-creator
+  namespace: kube-system
+---
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRoleBinding
+metadata:
+  name: harbor-creator
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+subjects:
+  - kind: ServiceAccount
+    name: harbor-creator
+    namespace: kube-system
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: harbor-api-diagram
+  namespace: kube-system
+data:
+  api-diagram.json: |
+                   [
+                     {
+                       "name": "/vnf",
+                       "path": [
+                         {
+                           "name": "/launch/:id",
+                           "type": "get",
+                           "function": "routes.vnf.VnfLauncherRoute"
+                         },
+                         {
+                           "name": "/stop/:id",
+                           "type": "get",
+                           "function": "routes.vnf.VnfStopperRoute"
+                         },
+                         {
+                           "name": "/create/:id",
+                           "type": "post",
+                           "function": "routes.vnf.CreateVnfRoute"
+                         },
+                         {
+                           "name": "/delete/:id",
+                           "type": "delete",
+                           "function": "routes.vnf.DeleteVnfRoute"
+                         },
+                         {
+                           "name": "/update/:id",
+                           "type": "post",
+                           "function": "routes.vnf.UpdateVnfRoute"
+                         },
+                         {
+                           "name": "/get/:id",
+                           "type": "get",
+                           "function": "routes.vnf.GetVnfRoute"
+                         }
+                       ]
+                     }
+                   ]
+---
+kind: Deployment
+apiVersion: extensions/v1beta1
+metadata:
+  name: harbor-creator-deployment
+  namespace: kube-system
+  labels:
+    k8s-app: harbor-creator
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      k8s-app: harbor-creator
+  template:
+    metadata:
+      labels:
+        k8s-app: harbor-creator
+        name: harbor-creator
+    spec:
+      containers:
+        - name: harbor
+          image: augugrumi/harbor:kubernetes_integration
+          imagePullPolicy: Always
+          ports:
+            - name: http
+              containerPort: 80
+          volumeMounts:
+            - name: harbor-config
+              mountPath: /config
+          env:
+            - name: HARBOR_API_CONFIG
+              value: /config/api-diagram.json
+      volumes:
+        - name: harbor-config
+          configMap:
+            name: harbor-api-diagram
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: harbor-creator-service
+  namespace: kube-system
+spec:
+  selector:
+    k8s-app: harbor-creator
+  ports:
+    - protocol: TCP
+      port: 80
+      name: web
+  type: NodePort

@@ -1,13 +1,36 @@
 [
   {
-    "name": "/testdin",
-    "type": "get",
-    "function": "routes.HelloWorldRoute",
+    "name": "/vnf",
     "path": [
       {
-        "name": "/a",
+        "name": "/launch/:id",
         "type": "get",
-        "function": "routes.TestRoute"
+        "function": "routes.vnf.VnfLauncherRoute"
+      },
+      {
+        "name": "/stop/:id",
+        "type": "get",
+        "function": "routes.vnf.VnfStopperRoute"
+      },
+      {
+        "name": "/create/:id",
+        "type": "post",
+        "function": "routes.vnf.CreateVnfRoute"
+      },
+      {
+        "name": "/delete/:id",
+        "type": "delete",
+        "function": "routes.vnf.DeleteVnfRoute"
+      },
+      {
+        "name": "/update/:id",
+        "type": "post",
+        "function": "routes.vnf.UpdateVnfRoute"
+      },
+      {
+        "name": "/get/:id",
+        "type": "get",
+        "function": "routes.vnf.GetVnfRoute"
       }
     ]
   }

@@ -1,10 +1,8 @@
 language: java
 jdk:
 - oraclejdk8
-- openjdk8
+#- openjdk8 # Causes too much StackOverflow error
 - oraclejdk9
 sudo: false
 before_install:
-- export MAVEN_OPTS="-Xms256m -Xmx1024m -Xss1024k" && path="$(pwd)" && cd .. && git clone --recursive https://github.com/kubernetes-client/java && cd java && git checkout client-java-parent-2.0.0 && mvn install -DskipTests && cd $path
-script:
-- mvn compile
+- export MAVEN_OPTS="-Xms256m -Xmx1024m -Xss1024k" && path="$(pwd)" && cd .. && git clone --recursive https://github.com/kubernetes-client/java && cd java && git checkout 8d6ab536f565ee951141b14bfd170629399d8c67 && mvn --batch-mode -q install -DskipTests && cd $path

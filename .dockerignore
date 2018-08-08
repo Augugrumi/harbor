@@ -5,3 +5,5 @@ target
 *.log*
 LICENSE
 README.md
+harbor-deployment.yaml
+api_definition.json

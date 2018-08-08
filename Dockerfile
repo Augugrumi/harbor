@@ -5,10 +5,10 @@ WORKDIR /build/
 
 COPY . /build/
 
-# Should fix StackOverflow errors
-ARG MAVEN_OPTS="-Xms256m -Xmx1024m -Xss1024k"
+# Should fix StackOverflow errors if you occur in one of them
+# ARG MAVEN_OPTS="-Xms256m -Xmx1024m -Xss1024k"
 
-# Install maven
+# Installs maven
 RUN apt-get update &&  \
     apt-get install -y maven git
 
@@ -17,7 +17,7 @@ RUN path="$(pwd)" && \
     cd .. && \
     git clone --recursive https://github.com/kubernetes-client/java && \
     cd java && \
-    git checkout client-java-parent-2.0.0 && \
+    git checkout 8d6ab536f565ee951141b14bfd170629399d8c67 && \
     mvn install -DskipTests && \
     cd $path
 
@@ -38,8 +38,10 @@ LABEL license="GPLv3+"
 LABEL description="Harbor Docker image"
 
 # Available environment variables:
-# -HARBOR_PORT: custom port in wich harbor will run (the default is 80)
+# -HARBOR_PORT: custom port in which harbor will run (the default is 80)
 # -HARBOR_API_CONFIG: path to your API configuration json
+# -HARBOR_KUBERNETES_URL: url to your Kubernetes API endpoint
+# -HARBOR_YAML_STORAGE_PATH: path to an empty folder where Harbor will create it's home for YAML storage
 ENV HARBOR_API_CONFIG=api_sample.json
 
 RUN mkdir -p /config/
