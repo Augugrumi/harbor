@@ -10,7 +10,7 @@
       {
         "name": "/stop/:id",
         "type": "get",
-        "function": "routes.vnf.VnfStopRoute"
+        "function": "routes.vnf.VnfStopperRoute"
       },
       {
         "name": "/create/:id",
