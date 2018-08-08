@@ -2,6 +2,7 @@ package routes.vnf;
 
 import org.json.JSONObject;
 import org.slf4j.Logger;
+import routes.util.FileNameUtils;
 import spark.Request;
 import spark.Response;
 import spark.Route;
@@ -17,10 +18,10 @@ public class GetVnfRoute implements Route {
     @Override
     public Object handle(Request request, Response response) throws Exception {
 
-        LOG.debug("GetVnfRoute called");
+        LOG.debug(this.getClass().getSimpleName() + " called");
 
         final JSONObject toSendBack = new JSONObject();
-        final String filename = Utils.validateFileName(request.params(":id"));
+        final String filename = FileNameUtils.validateFileName(request.params(":id"));
         final File fileToReturn = new File(ConfigManager.getConfig().getYamlStorageFolder() + File.separator + filename);
 
         if (fileToReturn.exists()) {

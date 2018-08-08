@@ -2,8 +2,9 @@ package routes.vnf;
 
 import k8s.K8sAPI;
 import k8s.K8sFactory;
-import org.json.JSONObject;
 import org.slf4j.Logger;
+import routes.util.FileNameUtils;
+import routes.util.ResponseCreator;
 import spark.Request;
 import spark.Response;
 import spark.Route;
@@ -18,10 +19,10 @@ public class VnfLauncherRoute implements Route {
     @Override
     public Object handle(Request request, Response response) throws Exception {
 
-        LOG.debug("VnfLauncherRoute called");
+        LOG.debug(this.getClass().getSimpleName() + " called");
 
         // TODO consider the case where the filename is ending with .yml
-        final String filename = Utils.validateFileName(request.params(":id"));
+        final String filename = FileNameUtils.validateFileName(request.params(":id"));
         final File yamlFile = new File(ConfigManager.getConfig().getYamlStorageFolder() + File.separator + filename);
 
         if (yamlFile.exists()) {
@@ -31,9 +32,8 @@ public class VnfLauncherRoute implements Route {
             final K8sAPI api = K8sFactory.getCliAPI();
             return api.createFromYaml(yamlFile.toURI().toURL(), res -> res.getAttachment().toString());
         } else {
-            final JSONObject toSendBack = new JSONObject();
-            toSendBack.put("result", "error");
-            toSendBack.put("reason", "The requested YAML doesn't exist");
+            final ResponseCreator toSendBack = new ResponseCreator(ResponseCreator.ResponseType.ERROR);
+            toSendBack.add(ResponseCreator.Fields.REASON, "The requested YAML doesn't exist");
             return toSendBack;
         }
     }

@@ -1,8 +1,8 @@
-package routes.vnf;
+package routes.util;
 
-class Utils {
+public class FileNameUtils {
 
-    static String validateFileName(String toCheck) {
+    public static String validateFileName(String toCheck) {
         // TODO consider the case where the filename is ending with .yml
         return toCheck.endsWith(".yaml") ? toCheck : toCheck + ".yaml";
     }

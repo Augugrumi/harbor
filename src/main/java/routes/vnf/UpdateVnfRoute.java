@@ -2,6 +2,7 @@ package routes.vnf;
 
 import org.json.JSONObject;
 import org.slf4j.Logger;
+import routes.util.ResponseCreator;
 import spark.Request;
 import spark.Response;
 import spark.Route;
@@ -14,19 +15,26 @@ public class UpdateVnfRoute implements Route {
     @Override
     public Object handle(Request request, Response response) throws Exception {
 
-        LOG.debug("UpdateVnfRoute called");
+        LOG.debug(this.getClass().getSimpleName() + " called");
 
         // Update = Deletion + Creation
         Route deletion = new DeleteVnfRoute();
         Route creation = new CreateVnfRoute();
 
-        JSONObject toSendBack = new JSONObject();
+        ResponseCreator toSendBack;
 
-        JSONObject reply = (JSONObject) deletion.handle(request, response);
-        if ("ok".equals(reply.getString("result"))) {
-            reply = (JSONObject) creation.handle(request, response);
-            if ("ok".equals(reply.getString("result"))) {
-                toSendBack.put("result", "ok");
+        ResponseCreator reply = (ResponseCreator) deletion.handle(request, response);
+        JSONObject replyToJSONObject = new JSONObject(reply.toString());
+
+
+        // FIXME this code sucks, please find a better solution :(
+        if (ResponseCreator.ResponseType.OK.toString().equalsIgnoreCase(
+                replyToJSONObject.getString(ResponseCreator.Fields.RESULT.toString().toLowerCase()))) {
+            reply = (ResponseCreator) creation.handle(request, response);
+            replyToJSONObject = new JSONObject(reply.toString());
+            if (ResponseCreator.ResponseType.OK.toString().equalsIgnoreCase(
+                    replyToJSONObject.getString(ResponseCreator.Fields.RESULT.toString().toLowerCase()))) {
+                toSendBack = new ResponseCreator(ResponseCreator.ResponseType.OK);
             } else {
                 toSendBack = reply;
             }

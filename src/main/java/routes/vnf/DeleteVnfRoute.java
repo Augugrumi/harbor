@@ -1,7 +1,8 @@
 package routes.vnf;
 
-import org.json.JSONObject;
 import org.slf4j.Logger;
+import routes.util.FileNameUtils;
+import routes.util.ResponseCreator;
 import spark.Request;
 import spark.Response;
 import spark.Route;
@@ -16,22 +17,22 @@ public class DeleteVnfRoute implements Route {
     @Override
     public Object handle(Request request, Response response) {
 
-        LOG.debug("DeleteVnfRoute called");
+        LOG.debug(this.getClass().getSimpleName() + " called");
 
-        final String filename = Utils.validateFileName(request.params(":id"));
+        final String filename = FileNameUtils.validateFileName(request.params(":id"));
         final File yamlToDelete = new File(ConfigManager.getConfig().getYamlStorageFolder() + File.separator + filename);
-        final JSONObject toSendBack = new JSONObject();
+        final ResponseCreator toSendBack;
 
         if (yamlToDelete.exists()) {
             if (yamlToDelete.delete()) {
-                toSendBack.put("result", "ok");
+                toSendBack = new ResponseCreator(ResponseCreator.ResponseType.OK);
             } else {
-                toSendBack.put("result", "error");
-                toSendBack.put("reason", "Failed to delete the file!");
+                toSendBack = new ResponseCreator(ResponseCreator.ResponseType.ERROR);
+                toSendBack.add(ResponseCreator.Fields.REASON, "Failed to delete the file");
             }
         } else {
-            toSendBack.put("result", "error");
-            toSendBack.put("reason", "The requested YAML doesn't exist");
+            toSendBack = new ResponseCreator(ResponseCreator.ResponseType.ERROR);
+            toSendBack.add(ResponseCreator.Fields.REASON, "The requested YAML doesn't exist");
         }
 
         return toSendBack;
