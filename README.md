@@ -14,7 +14,8 @@ installed in your system. To install it, open a terminal and write:
 git clone --recursive https://github.com/kubernetes-client/java && \
 cd java && \
 git checkout 8d6ab536f565ee951141b14bfd170629399d8c67 && \
-mvn install -DskipTests
+mvn install -DskipTests && \
+cd ..
 ```
 
 This will install the Java client necessary to Harbor to properly work.
