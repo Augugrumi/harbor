@@ -34,10 +34,39 @@ java -jar target/harbor-<version>-jar-with-dependencies.jar -f api_definition.js
 
 ## Flags
 There are different flags that can be used to customize Harbor behaviour:
-- `-f`: file pointing to an API definition
-- `-p`: specify the port where Harbor will run
-- `-k`: specify kubernetes api URL
-- `-y`: specify Harbor YAML home
+- `-f`: file pointing to an API definition (the default one will use the
+ hello world API definition)
+- `-p`: specify the port where Harbor will run (default to 80)
+- `-k`: specify kubernetes api URL (default to localhost or, if it's
+ running as a container in docker, to kubernetes environment variables)
+- `-y`: specify Harbor YAML home (default to `.harbor/yaml`)
+
+## Docker image
+There is also a docker image that you can use. Download it with:
+```bash
+docker pull augugrumi/harbor
+```
+
+At this point, you can run it with:
+```bash
+docker run --rm -p57684:80 augugrumi/harbor
+```
+
+### Environment variables
+There are environment variables, equal to the flags previously
+described, that allow you to customize Harbor behaviour.
+These are:
+- `HARBOR_PORT`: custom port in which harbor will run
+- `HARBOR_API_CONFIG`: path to your API configuration json
+- `HARBOR_KUBERNETES_URL`: url to your Kubernetes API endpoint
+- `HARBOR_YAML_STORAGE_PATH`: path to an empty folder where Harbor will create it's home for YAML storage
+
+### Building your own docker image
+The Dockerfile in the project uses _multi-stage docker builds_. To
+build it, open a terminal and type:
+```bash
+docker build -t <your nickname>/harbor .
+```
 
 ## License
 
