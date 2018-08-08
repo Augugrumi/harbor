@@ -13,6 +13,7 @@ public class ArgParser {
     final private static String API_CONF_PATH_OPTION_SHORT = "f";
     final private static String PORT_OPTION_SHORT = "p";
     final private static String KUBERNETES_URL_SHORT = "k";
+    final private static String HARBOR_YAML_HOME_SHORT = "y";
 
     // Long options
     //final private static String API_CONF_PATH_OPTION_LONG = "file";
@@ -32,6 +33,8 @@ public class ArgParser {
         ARGS_TO_PARSE.addOption(PORT_OPTION_SHORT, true, "Port where Harbor should run");
         //ARGS_TO_PARSE.addOption(PORT_OPTION_LONG, true, "Port where Harbor should run");
         ARGS_TO_PARSE.addOption(KUBERNETES_URL_SHORT, true, "Set custom kubernetes API URL");
+        //ARGS_TO_PARSE.addOption(HARBOR_YAML_HOME_LONG, true, "Set custom Harbor YAML home");
+        ARGS_TO_PARSE.addOption(HARBOR_YAML_HOME_SHORT, true, "Set custom Harbor YAML home");
     }
 
     public void parse() throws ParseException {
@@ -56,6 +59,9 @@ public class ArgParser {
                 System.exit(1);
             }
             LOG.debug(KUBERNETES_URL_SHORT + " passed as argument. Value: " + cmd.getOptionValue(KUBERNETES_URL_SHORT));
+        }
+        if (cmd.hasOption(HARBOR_YAML_HOME_SHORT) && cmd.getOptionValue(HARBOR_YAML_HOME_SHORT) != null) {
+            ConfigManager.getConfig().setYAMLHome(cmd.getOptionValue(HARBOR_YAML_HOME_SHORT));
         }
     }
 }

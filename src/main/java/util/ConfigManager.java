@@ -43,7 +43,7 @@ public class ConfigManager {
         private String API_CONFIG_PATH;
         private String KUBERNETES_URL;
         private String KUBERNETES_PORT;
-        final private String YAML_STORAGE;
+        private String YAML_STORAGE;
 
 
         private Config () {
@@ -78,10 +78,6 @@ public class ConfigManager {
                         File.separator + ".harbor" +
                         File.separator + "yaml";
 
-                File firstRunCheck = new File(this.YAML_STORAGE);
-                if (firstRunCheck.isDirectory() && !firstRunCheck.exists()) {
-                    firstRunCheck.mkdirs();
-                }
             }
             LOG.debug("Environment variable" + HB_YAML_STORAGE + " set to: " + this.YAML_STORAGE);
         }
@@ -126,6 +122,10 @@ public class ConfigManager {
             this.KUBERNETES_URL = newURL.getHost();
             this.KUBERNETES_PORT = newURL.getPort() == -1 ?
                     String.valueOf(newURL.getDefaultPort()) : String.valueOf(newURL.getPort());
+        }
+
+        void setYAMLHome(String newPath) {
+            this.YAML_STORAGE = newPath;
         }
 
         public boolean isRunningInKubernetes() {
