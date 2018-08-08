@@ -22,7 +22,7 @@ This will install the Java client necessary to Harbor to properly work.
 Next, compile Harbor as follows:
 ```bash
 git clone https://github.com/Augugrumi/harbor.git && \
-cd harmor && \
+cd harbor && \
 mvn package
 ```
 
