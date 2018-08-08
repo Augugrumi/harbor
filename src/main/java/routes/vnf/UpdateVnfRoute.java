@@ -14,7 +14,7 @@ public class UpdateVnfRoute implements Route {
     @Override
     public Object handle(Request request, Response response) throws Exception {
 
-        LOG.debug("DeleteVnfRoute called");
+        LOG.debug("UpdateVnfRoute called");
 
         // Update = Deletion + Creation
         Route deletion = new DeleteVnfRoute();
