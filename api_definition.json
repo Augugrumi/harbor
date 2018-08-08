@@ -24,7 +24,7 @@
       },
       {
         "name": "/get/:id",
-        "type": "post",
+        "type": "get",
         "function": "routes.vnf.GetVnfRoute"
       }
     ]
