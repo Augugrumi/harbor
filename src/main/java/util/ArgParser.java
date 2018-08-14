@@ -28,7 +28,7 @@ public class ArgParser {
     /**
      * Prepare the parser but it doesn't execute it
      *
-     * @param args
+     * @param args the arguments to parse
      */
     public ArgParser(String[] args) {
 
@@ -47,7 +47,7 @@ public class ArgParser {
 
     /**
      * Execute the parsing procedure
-     * @throws ParseException
+     * @throws ParseException this exception is thrown if the parsing fails
      */
     public void parse() throws ParseException {
 

@@ -11,10 +11,34 @@ import util.ConfigManager;
 import java.io.File;
 import java.io.FileInputStream;
 
+/**
+ * This route returns the YAML definition of the given id
+ */
 public class GetVnfRoute implements Route {
 
     final private static Logger LOG = ConfigManager.getConfig().getApplicationLogger(GetVnfRoute.class);
 
+    /**
+     * The request handler. If the required YAML exists (thus the id is valid) it returns it inside a JSON:
+     *
+     * @param request  the data sent from the client
+     * @param response optional fields to set in the reply
+     * @return If the operation is successful:
+     * <pre>
+     *     {
+     *         "result": "ok",
+     *         "yaml": "YAML content"
+     *     }
+     * </pre>
+     * Otherwise, the method returns an JSON error formatted in this way:
+     * <pre>
+     *     {
+     *         "result": "error",
+     *         "reason": "The requested file doesn't exist"
+     *     }
+     * </pre>
+     * @throws Exception when the handler fails to read the YAML file a 500 Internal server error gets returned
+     */
     @Override
     public Object handle(Request request, Response response) throws Exception {
 
