@@ -27,7 +27,7 @@ public class GetVnfRoute implements Route {
      * <pre>
      *     {
      *         "result": "ok",
-     *         "yaml": "YAML content"
+     *         "yaml": "The actual YAML content"
      *     }
      * </pre>
      * Otherwise, the method returns an JSON error formatted in this way:
