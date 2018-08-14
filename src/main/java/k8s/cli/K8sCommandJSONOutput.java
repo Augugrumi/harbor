@@ -4,7 +4,7 @@ import k8s.K8sCommandOutput;
 import org.json.JSONObject;
 
 /**
- * This class specify the type of the command output to be a JSONObject. So K9sCommandJSONOutput return the output
+ * This class specify the type of the command output to be a JSONObject. So K8sCommandJSONOutput return the output
  * encapsulated inside a JSONObject
  *
  * @see K8sCommandOutput
