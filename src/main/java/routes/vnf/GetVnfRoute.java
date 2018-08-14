@@ -19,7 +19,7 @@ public class GetVnfRoute implements Route {
     final private static Logger LOG = ConfigManager.getConfig().getApplicationLogger(GetVnfRoute.class);
 
     /**
-     * The request handler. If the required YAML exists (thus the id is valid) it returns it inside a JSON:
+     * The request handler. If the required YAML exists (thus the id is valid) the content is returned inside a JSON.
      *
      * @param request  the data sent from the client
      * @param response optional fields to set in the reply
