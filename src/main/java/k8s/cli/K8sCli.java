@@ -20,12 +20,27 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Specific Kubernetes API implementation based on CLI interaction and output parsing. Even if error prone, this could
+ * be useful when Harbor is running outside a Kubernetes cluster or it has only access to the <code>kubectl</code>
+ * command
+ *
+ * @see CommandExec
+ * @see Process
+ */
 public class K8sCli implements K8sAPI {
 
     final private static Logger LOG = ConfigManager.getConfig().getApplicationLogger(K8sCli.class);
 
     private static String kubectlPath;
 
+    /**
+     * Initialize the CLI API. It first checks if kubelet is running, then it tries to detect where the
+     * <code>kubectl</code> command is located. If both commands are successful, then the initialization is complete,
+     * otherwise an exception is thrown
+     * @throws K8sInitFailureException this exception is thrown when one of the mandatory elements of the initialization
+     * fails, i.e. <code>kubectl</code> is not present or <code>kubelet</code> is not present in the system
+     */
     public K8sCli() throws K8sInitFailureException {
 
         // TODO check that K8s cluster runs 1.11.x!
