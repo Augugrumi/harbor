@@ -7,6 +7,11 @@ import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+/**
+ * Singleton handling requests to the true configuration class
+ *
+ * @see Config
+ */
 public class ConfigManager {
 
     private static Config configuration;
@@ -15,6 +20,13 @@ public class ConfigManager {
 
     }
 
+    /**
+     * Getter method to obtain the Singleton configuration. Note that this is a "lazy" singleton, so the real singleton
+     * gets created the first time it's required, and not at the ConfigManager creation.
+     * @return If it's the first call, it returns a new Config instance, otherwise an already existing Config it's
+     * returned
+     * @see Config
+     */
     public static synchronized Config getConfig () {
         if (configuration == null) {
             configuration = new Config();
@@ -23,6 +35,9 @@ public class ConfigManager {
         return configuration;
     }
 
+    /**
+     * The true class containing global variables and global resources
+     */
     public static class Config {
 
         // External env variables
@@ -46,6 +61,9 @@ public class ConfigManager {
         private String YAML_STORAGE;
 
 
+        /**
+         * Creates a Config class, taking all the needed environment variables and coping them into local variables.
+         */
         private Config () {
 
             LOG.debug("Environment variable " + HB_PORT + " set to: " + System.getenv(HB_PORT));
@@ -82,18 +100,36 @@ public class ConfigManager {
             LOG.debug("Environment variable" + HB_YAML_STORAGE + " set to: " + this.YAML_STORAGE);
         }
 
+        /**
+         * Getter method to obtain the port number in with the server will listen to request
+         * @return it returns the port in with Sparks Java is running
+         */
         public int getPort () {
             return PORT;
         }
 
+        /**
+         * Get the application logger based on the class name provided
+         * @param name the class description
+         * @return a logger with the configured class name
+         */
         public Logger getApplicationLogger (Class name) {
             return LoggerFactory.getLogger(name);
         }
 
+        /**
+         * Getter method to obtain the filepath to the JSON API config
+         * @return a filepath to the API config JSON
+         */
         public String getAPIConfig () {
             return API_CONFIG_PATH;
         }
 
+        /**
+         * Getter method to obtain the full kubernetes API address. Useful when Harbor is running inside a container in
+         * a Kubernetes environment
+         * @return an URL to the kubernetes-api container
+         */
         public String getFullKubernetesAddress() {
 
             String toAttach = this.KUBERNETES_PORT == null ? "" : ":" + this.KUBERNETES_PORT;
@@ -102,19 +138,36 @@ public class ConfigManager {
             return prot + "://" + this.KUBERNETES_URL + toAttach;
         }
 
+        /**
+         * Getter method to retrieve the YAML storage folder path
+         * @return return the YAML folder path where YAML configurations will be saved
+         */
         public String getYamlStorageFolder() {
             return this.YAML_STORAGE;
         }
 
 
+        /**
+         * Setter method to change port number
+         * @param port a new port destination
+         */
         void setPort(int port) {
             this.PORT = port;
         }
 
+        /**
+         * Setter method to change API filepath
+         * @param APIPath the new API filepath
+         */
         void setAPIConfig(String APIPath) {
             this.API_CONFIG_PATH = APIPath;
         }
 
+        /**
+         * Setter method to change Kubernetes API address
+         * @param k8sAddress a new URL to the kubernetes-api container
+         * @throws MalformedURLException if the given url is not valid
+         */
         void setKubernetesAddress(String k8sAddress) throws MalformedURLException {
 
             URL newURL = new URL(k8sAddress);
@@ -124,10 +177,18 @@ public class ConfigManager {
                     String.valueOf(newURL.getDefaultPort()) : String.valueOf(newURL.getPort());
         }
 
+        /**
+         * Setter method to change YAML storage home
+         * @param newPath a new directory to store YAML configuration files
+         */
         void setYAMLHome(String newPath) {
             this.YAML_STORAGE = newPath;
         }
 
+        /**
+         * Get if running inside the kubernetes environment or not
+         * @return True if running inside a Kubernetes cluster, false otherwise
+         */
         public boolean isRunningInKubernetes() {
             return System.getenv(K8S_API_ENDPOINT) != null;
         }

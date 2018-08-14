@@ -3,14 +3,20 @@ package k8s.lib;
 import k8s.K8sAPI;
 import k8s.K8sResultConverter;
 import k8s.exceptions.K8sException;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.net.URL;
 
+/**
+ * API implementation that uses the <a href="https://github.com/kubernetes-client/java">official java API for
+ * Kubernetes</a>
+ */
 public class K8sJavaAPI implements K8sAPI {
 
+    /**
+     * Since this class is still not implemented, it's constructor will always return a RuntimeException
+     */
     public K8sJavaAPI() {
-        throw new NotImplementedException();
+        throw new RuntimeException();
     }
 
     @Override

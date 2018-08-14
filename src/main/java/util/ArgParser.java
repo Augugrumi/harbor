@@ -5,6 +5,9 @@ import org.slf4j.Logger;
 
 import java.net.MalformedURLException;
 
+/**
+ * It parses arguments given by the CLI
+ */
 public class ArgParser {
 
     final private static Logger LOG = ConfigManager.getConfig().getApplicationLogger(ArgParser.class);
@@ -22,6 +25,11 @@ public class ArgParser {
     final private String[] ARGS;
     final private Options ARGS_TO_PARSE;
 
+    /**
+     * Prepare the parser but it doesn't execute it
+     *
+     * @param args the arguments to parse
+     */
     public ArgParser(String[] args) {
 
         this.ARGS = args;
@@ -37,6 +45,10 @@ public class ArgParser {
         ARGS_TO_PARSE.addOption(HARBOR_YAML_HOME_SHORT, true, "Set custom Harbor YAML home");
     }
 
+    /**
+     * Execute the parsing procedure
+     * @throws ParseException this exception is thrown if the parsing fails
+     */
     public void parse() throws ParseException {
 
         CommandLineParser parser = new DefaultParser();
