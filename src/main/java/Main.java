@@ -8,6 +8,12 @@ import java.io.IOException;
 
 import static spark.Spark.port;
 
+/**
+ * Main program class. It parses the command line args and starts the Spark Java server, loading the desired API.
+ *
+ * @see ArgParser
+ * @see DynamicAPILoader
+ */
 public class Main {
 
     final private static Logger LOG = ConfigManager.getConfig().getApplicationLogger(Main.class);
