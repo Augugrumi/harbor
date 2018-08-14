@@ -6,6 +6,16 @@
 Harbor is a simple backend, written in Java, capable to launch k8s YAML
 definitions in a cluster deployment.
 
+## Documentation
+
+Of course we have a Javadoc! To generate one, clone the project and then
+run in a terminal:
+```bash
+mvn javadoc:javadoc
+```
+
+This will generate a javadoc in `./target/site/apidocs`.
+
 ## How to build it
 
 To build it, first of all check to have [kubernetes-client/java](https://github.com/kubernetes-client/java)
