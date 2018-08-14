@@ -61,7 +61,8 @@ public class DynamicAPILoader {
     final private JSONArray jsonPathConfig;
 
     /**
-     * It loads the API path into RAM, without applying it
+     * It loads the API path into RAM, without applying it. This means that the file is read into memory, but the
+     * actual server configuration isn't touched until <i>load</i> is called
      * @param jsonPath the path to the JSON file
      * @throws IOException is thrown if some operation accessing the JSON file fails
      */
