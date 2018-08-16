@@ -42,25 +42,17 @@ public class UpdateVnfRoute implements Route {
         Route deletion = new DeleteVnfRoute();
         Route creation = new CreateVnfRoute();
 
-        ResponseCreator toSendBack;
+        ResponseCreator toSendBack = (ResponseCreator) deletion.handle(request, response);
+        JSONObject replyToJSONObject = new JSONObject(toSendBack.toString());
 
-        ResponseCreator reply = (ResponseCreator) deletion.handle(request, response);
-        JSONObject replyToJSONObject = new JSONObject(reply.toString());
-
-
-        // FIXME this code sucks, please find a better solution :(
         if (ResponseCreator.ResponseType.OK.toString().equalsIgnoreCase(
                 replyToJSONObject.getString(ResponseCreator.Fields.RESULT.toString().toLowerCase()))) {
-            reply = (ResponseCreator) creation.handle(request, response);
-            replyToJSONObject = new JSONObject(reply.toString());
+            toSendBack = (ResponseCreator) creation.handle(request, response);
+            replyToJSONObject = new JSONObject(toSendBack.toString());
             if (ResponseCreator.ResponseType.OK.toString().equalsIgnoreCase(
                     replyToJSONObject.getString(ResponseCreator.Fields.RESULT.toString().toLowerCase()))) {
                 toSendBack = new ResponseCreator(ResponseCreator.ResponseType.OK);
-            } else {
-                toSendBack = reply;
             }
-        } else {
-            toSendBack = reply;
         }
 
         return toSendBack;
