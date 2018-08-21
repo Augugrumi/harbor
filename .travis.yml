@@ -1,6 +1,6 @@
 language: java
 jdk:
-- oraclejdk8
+#- oraclejdk8 # Sometime it stalls while building Google Kubernetes API
 #- openjdk8 # Causes too much StackOverflow error
 - oraclejdk9
 sudo: false
