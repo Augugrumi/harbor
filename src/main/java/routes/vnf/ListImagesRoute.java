@@ -1,5 +1,6 @@
 package routes.vnf;
 
+import org.slf4j.Logger;
 import routes.util.ResponseCreator;
 import spark.Request;
 import spark.Response;
@@ -15,6 +16,8 @@ import java.util.List;
  */
 public class ListImagesRoute implements Route {
 
+    final private static Logger LOG = ConfigManager.getConfig().getApplicationLogger(DeleteVnfRoute.class);
+
     /**
      * The request handler lists all the file contained in the YAML designed folder and returns them
      *
@@ -24,9 +27,12 @@ public class ListImagesRoute implements Route {
      */
     @Override
     public Object handle(Request request, Response response) {
-        File folder = new File(ConfigManager.getConfig().getYamlStorageFolder());
-        File[] listOfFiles = folder.listFiles();
-        List<String> images = new ArrayList<>();
+
+        LOG.debug(this.getClass().getSimpleName() + " called");
+
+        final File folder = new File(ConfigManager.getConfig().getYamlStorageFolder());
+        final File[] listOfFiles = folder.listFiles();
+        final List<String> images = new ArrayList<>();
         if (listOfFiles != null) {
             for (File f : listOfFiles) {
                 if (f.isFile() && f.getName().matches(".*[.]ya?ml")) {
@@ -34,7 +40,7 @@ public class ListImagesRoute implements Route {
                 }
             }
         }
-        ResponseCreator toSendBack = new ResponseCreator(ResponseCreator.ResponseType.OK);
+        final ResponseCreator toSendBack = new ResponseCreator(ResponseCreator.ResponseType.OK);
         toSendBack.add(ResponseCreator.Fields.CONTENT, images);
         return toSendBack;
     }
