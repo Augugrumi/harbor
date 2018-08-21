@@ -16,7 +16,7 @@ import java.util.List;
 public class ListImagesRoute implements Route {
 
     /**
-     * The request list all the file present in the YAML designed folder and returns that
+     * The request handler lists all the file contained in the YAML designed folder and returns them
      *
      * @param request  the data sent from the client
      * @param response optional fields to set in the reply
