@@ -42,7 +42,14 @@ LABEL description="Harbor Docker image"
 # -HARBOR_API_CONFIG: path to your API configuration json
 # -HARBOR_KUBERNETES_URL: url to your Kubernetes API endpoint
 # -HARBOR_YAML_STORAGE_PATH: path to an empty folder where Harbor will create it's home for YAML storage
+# -KUBECTL_CONFIG_PATH: path to the kubectl config command. Useful only when Harbor uses kubectl to talk with k8s
 ENV HARBOR_API_CONFIG=api_sample.json
+
+# Installing kubectl
+ADD https://storage.googleapis.com/kubernetes-release/release/v1.11.0/bin/linux/amd64/kubectl /usr/local/bin/rkubectl
+COPY docker/scripts/kubectl.sh /usr/local/bin/kubectl
+RUN chmod +x /usr/local/bin/rkubectl && \
+    chmod +x /usr/local/bin/kubectl
 
 RUN mkdir -p /config/
 VOLUME /config/

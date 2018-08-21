@@ -43,41 +43,45 @@ public class K8sCli implements K8sAPI {
      */
     public K8sCli() throws K8sInitFailureException {
 
-        // TODO check that K8s cluster runs 1.11.x!
         try {
-            // Check if kubelet is up and Kubectl exists
-            List<Process> kubelet = new LinkedList<>();
-            kubelet.add(new ProcessBuilder("systemctl", "status", "kubelet").start());
-            kubelet.add(new ProcessBuilder("grep", "Active").start());
-            kubelet.add(new ProcessBuilder("cut", "-d", " ", "-f5").start());
+
+            // Check kubectl version: kubectl version | grep Client | cut -d',' -f3 | cut -d':' -f2 | cut -d'"' -f2
+            List<Process> kubectlVersion = new LinkedList<>();
+            kubectlVersion.add(new ProcessBuilder("kubectl", "version").start());
+            kubectlVersion.add(new ProcessBuilder("grep", "Client").start());
+            kubectlVersion.add(new ProcessBuilder("cut", "-d','", "-f3").start());
+            kubectlVersion.add(new ProcessBuilder("cut", "-d':'", "-f2").start());
+            kubectlVersion.add(new ProcessBuilder("cut", "-d'\"'", "-f2").start());
 
             List<Process> kubectl = new LinkedList<>();
             kubectl.add(new ProcessBuilder("which", "kubectl").start());
 
             Map<List<Process>, CommandExec.Result> chainOfCommandsOutput = new CommandExec.Builder()
-                    .add(kubelet)
                     .add(kubectl)
+                    .add(kubectlVersion)
                     .build()
                     .exec();
-
-            if (!"active".equals(chainOfCommandsOutput.get(kubelet).getOutput())) {
-                LOG.error("Kubectl output: " + chainOfCommandsOutput.get(kubelet).getOutput());
-                LOG.error("Kubectl exit code: " + chainOfCommandsOutput.get(kubelet).getExitCode());
-                throw new K8sInitFailureException();
-            }
 
             if (chainOfCommandsOutput.get(kubectl).getExitCode() == 0) {
                 kubectlPath = chainOfCommandsOutput.get(kubectl).getOutput();
             } else {
                 LOG.error("Which cannot find kubectl command");
-                throw new K8sInitFailureException();
+                throw new K8sInitFailureException("Which cannot find kubectl command");
             }
+
             LOG.debug("Kubectl path is: " + kubectlPath);
             LOG.debug("Kubectl exit code is: " + chainOfCommandsOutput.get(kubectl).getExitCode());
 
+            if (chainOfCommandsOutput.get(kubectlVersion).getOutput().matches("v1\\.11(\\.\\d+)?")) {
+                LOG.debug("kubectl version found: " + chainOfCommandsOutput.get(kubectlVersion).getOutput());
+            } else {
+                throw new K8sInitFailureException("Wrong kubectl version detected. Only v1.11.x version are " +
+                        "supported. Installed version: " + chainOfCommandsOutput.get(kubectlVersion).getOutput());
+            }
+
         } catch (IOException e) {
             e.printStackTrace();
-            throw new K8sInitFailureException();
+            throw new K8sInitFailureException("Failure while trying to execute shell commands");
         }
 
     }
