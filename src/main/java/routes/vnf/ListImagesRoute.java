@@ -10,10 +10,20 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * The route returns a list of images currently uploaded in Harbor
+ */
 public class ListImagesRoute implements Route {
 
+    /**
+     * The request list all the file present in the YAML designed folder and returns that
+     *
+     * @param request  the data sent from the client
+     * @param response optional fields to set in the reply
+     * @return A JSON Array containing all the images names
+     */
     @Override
-    public Object handle(Request request, Response response) throws Exception {
+    public Object handle(Request request, Response response) {
         File folder = new File(ConfigManager.getConfig().getYamlStorageFolder());
         File[] listOfFiles = folder.listFiles();
         List<String> images = new ArrayList<>();
