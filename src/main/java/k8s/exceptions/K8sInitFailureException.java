@@ -5,4 +5,12 @@ package k8s.exceptions;
  * reachability, and so on
  */
 public class K8sInitFailureException extends K8sException {
+
+    public K8sInitFailureException(String message) {
+        super(message);
+    }
+
+    public K8sInitFailureException() {
+        super();
+    }
 }
