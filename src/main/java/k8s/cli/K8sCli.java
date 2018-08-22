@@ -46,17 +46,17 @@ public class K8sCli implements K8sAPI {
         try {
 
             // Check kubectl version: kubectl version | grep Client | cut -d',' -f3 | cut -d':' -f2 | cut -d'"' -f2
-            List<Process> kubectlVersion = new LinkedList<>();
+            final List<Process> kubectlVersion = new LinkedList<>();
             kubectlVersion.add(new ProcessBuilder("kubectl", "version").start());
             kubectlVersion.add(new ProcessBuilder("grep", "Client").start());
-            kubectlVersion.add(new ProcessBuilder("cut", "-d','", "-f3").start());
-            kubectlVersion.add(new ProcessBuilder("cut", "-d':'", "-f2").start());
-            kubectlVersion.add(new ProcessBuilder("cut", "-d'\"'", "-f2").start());
+            kubectlVersion.add(new ProcessBuilder("cut", "-d", ",", "-f3").start());
+            kubectlVersion.add(new ProcessBuilder("cut", "-d", ":", "-f2").start());
+            kubectlVersion.add(new ProcessBuilder("cut", "-d", "\"", "-f2").start());
 
-            List<Process> kubectl = new LinkedList<>();
+            final List<Process> kubectl = new LinkedList<>();
             kubectl.add(new ProcessBuilder("which", "kubectl").start());
 
-            Map<List<Process>, CommandExec.Result> chainOfCommandsOutput = new CommandExec.Builder()
+            final Map<List<Process>, CommandExec.Result> chainOfCommandsOutput = new CommandExec.Builder()
                     .add(kubectl)
                     .add(kubectlVersion)
                     .build()
@@ -72,7 +72,9 @@ public class K8sCli implements K8sAPI {
             LOG.debug("Kubectl path is: " + kubectlPath);
             LOG.debug("Kubectl exit code is: " + chainOfCommandsOutput.get(kubectl).getExitCode());
 
-            if (chainOfCommandsOutput.get(kubectlVersion).getOutput().matches("v1\\.11(\\.\\d+)?")) {
+            final String versionOutput = chainOfCommandsOutput.get(kubectlVersion).getOutput();
+
+            if (versionOutput.matches("v1\\.11(\\.\\d+)?")) {
                 LOG.debug("kubectl version found: " + chainOfCommandsOutput.get(kubectlVersion).getOutput());
             } else {
                 throw new K8sInitFailureException("Wrong kubectl version detected. Only v1.11.x version are " +
