@@ -70,6 +70,7 @@ These are:
 - `HARBOR_API_CONFIG`: path to your API configuration json
 - `HARBOR_KUBERNETES_URL`: url to your Kubernetes API endpoint
 - `HARBOR_YAML_STORAGE_PATH`: path to an empty folder where Harbor will create it's home for YAML storage
+- `KUBECTL_CONFIG_PATH`: path to the kubectl config command. Useful only when Harbor uses kubectl to talk with k8s
 
 ### Building your own docker image
 The Dockerfile in the project uses _multi-stage docker builds_. To
