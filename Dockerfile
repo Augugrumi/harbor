@@ -3,8 +3,6 @@ FROM openjdk:jdk-slim as builder
 RUN mkdir -p /build/
 WORKDIR /build/
 
-COPY . /build/
-
 # Should fix StackOverflow errors if you occur in one of them
 # ARG MAVEN_OPTS="-Xms256m -Xmx1024m -Xss1024k"
 
@@ -22,6 +20,7 @@ RUN path="$(pwd)" && \
     cd $path
 
 # Builds Harbor
+COPY . /build/
 RUN mvn package && \
     cd target/ && \
     mkdir -p bundle && \
