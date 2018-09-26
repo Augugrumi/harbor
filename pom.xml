@@ -135,5 +135,10 @@
             <artifactId>commons-cli</artifactId>
             <version>1.4</version>
         </dependency>
+        <dependency>
+            <groupId>com.github.Augugrumi</groupId>
+            <artifactId>DynamicSparkAPILoader</artifactId>
+            <version>master-SNAPSHOT</version>
+        </dependency>
     </dependencies>
 </project>
