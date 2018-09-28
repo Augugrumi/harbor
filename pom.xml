@@ -10,8 +10,7 @@
     <packaging>jar</packaging>
 
     <name>Harbor</name>
-    <description>A place were Openbaton and Kubernetes can exchange their
-        goods</description>
+    <description>A place were Openbaton and Kubernetes can exchange their goods</description>
 
     <licenses>
         <license>
