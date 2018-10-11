@@ -1,15 +1,17 @@
+package org.augugrumi.harbor;
+
 import org.apache.commons.cli.ParseException;
 import org.augugrumi.dynamicapiloader.DynamicAPILoader;
 import org.slf4j.Logger;
-import util.ArgParser;
-import util.ConfigManager;
+import org.augugrumi.harbor.util.ArgParser;
+import org.augugrumi.harbor.util.ConfigManager;
 
 import java.io.IOException;
 
 import static spark.Spark.port;
 
 /**
- * Main program class. It parses the command line args and starts the Spark Java server, loading the desired API.
+ * org.augugrumi.harbor.Main program class. It parses the command line args and starts the Spark Java server, loading the desired API.
  *
  * @see ArgParser
  * @see DynamicAPILoader

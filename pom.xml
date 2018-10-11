@@ -10,8 +10,7 @@
     <packaging>jar</packaging>
 
     <name>Harbor</name>
-    <description>A place were Openbaton and Kubernetes can exchange their
-        goods</description>
+    <description>A place were Openbaton and Kubernetes can exchange their goods</description>
 
     <licenses>
         <license>
@@ -41,7 +40,7 @@
                     <artifactId>exec-maven-plugin</artifactId>
                     <version>1.2.1</version>
                     <configuration>
-                        <mainClass>Main</mainClass>
+                        <mainClass>org.augugrumi.harbor.Main</mainClass>
                     </configuration>
                 </plugin>
                 <plugin>
@@ -80,7 +79,7 @@
                         <configuration>
                             <archive>
                                 <manifest>
-                                    <mainClass>Main</mainClass>
+                                    <mainClass>org.augugrumi.harbor.Main</mainClass>
                                 </manifest>
                             </archive>
                             <descriptorRefs>

@@ -1,11 +1,11 @@
-package routes.vnf;
+package org.augugrumi.harbor.routes.nfvo.catalog;
 
+import org.augugrumi.harbor.util.ConfigManager;
 import org.slf4j.Logger;
 import routes.util.ResponseCreator;
 import spark.Request;
 import spark.Response;
 import spark.Route;
-import util.ConfigManager;
 
 import java.io.File;
 import java.util.ArrayList;

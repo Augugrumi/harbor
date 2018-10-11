@@ -1,14 +1,14 @@
-package routes.vnf;
+package org.augugrumi.harbor.routes.vnfm;
 
 import k8s.K8sAPI;
 import k8s.K8sFactory;
+import org.augugrumi.harbor.util.ConfigManager;
 import org.slf4j.Logger;
 import routes.util.FileNameUtils;
 import routes.util.ResponseCreator;
 import spark.Request;
 import spark.Response;
 import spark.Route;
-import util.ConfigManager;
 
 import java.io.File;
 
