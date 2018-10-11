@@ -1,4 +1,4 @@
-package util;
+package org.augugrumi.harbor.util;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -38,12 +38,12 @@ import static spark.Spark.*;
  *       {
  *         "name": "/launch/:id",
  *         "type": "get",
- *         "function": "routes.vnf.VnfLauncherRoute"
+ *         "function": "org.augugrumi.harbor.routes.vnfm.VnfLauncherRoute"
  *       },
  *       {
  *         "name": "/stop/:id",
  *         "type": "get",
- *         "function": "routes.vnf.VnfStopperRoute"
+ *         "function": "org.augugrumi.harbor.routes.vnfm.VnfStopperRoute"
  *       }
  *     ]
  *   }

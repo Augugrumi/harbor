@@ -1,12 +1,12 @@
-package routes.vnf;
+package org.augugrumi.harbor.routes.nfvo.catalog;
 
+import org.augugrumi.harbor.util.ConfigManager;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import routes.util.ResponseCreator;
 import spark.Request;
 import spark.Response;
 import spark.Route;
-import util.ConfigManager;
 
 /**
  * This route allows to update an already existing YAML configuration with a new one. Please note that if this

@@ -1,4 +1,4 @@
-package util;
+package org.augugrumi.harbor.util;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
