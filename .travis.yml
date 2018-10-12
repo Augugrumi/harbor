@@ -5,6 +5,6 @@ jdk:
 - oraclejdk9
 sudo: false
 before_install:
-- export MAVEN_OPTS="-Xms256m -Xmx1024m -Xss1024k" && path="$(pwd)" && cd .. && git clone --recursive https://github.com/kubernetes-client/java && cd java && git checkout 8d6ab536f565ee951141b14bfd170629399d8c67 && mvn --batch-mode -q install -DskipTests && cd $path
+- path="$(pwd)" && cd .. && git clone --recursive https://github.com/kubernetes-client/java && cd java && git checkout 8d6ab536f565ee951141b14bfd170629399d8c67 && MAVEN_OPTS="-Xms256m -Xmx1024m -Xss1024k" mvn -q install -DskipTests && cd $path
 script:
 - mvn javadoc:javadoc
