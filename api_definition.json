@@ -5,37 +5,37 @@
       {
         "name": "/launch/:id",
         "type": "get",
-        "function": "routes.vnf.VnfLauncherRoute"
+        "function": "org.augugrumi.harbor.routes.vnfm.VnfLauncherRoute"
       },
       {
         "name": "/stop/:id",
         "type": "get",
-        "function": "routes.vnf.VnfStopperRoute"
+        "function": "org.augugrumi.harbor.routes.vnfm.VnfStopperRoute"
       },
       {
         "name": "/create/:id",
         "type": "post",
-        "function": "routes.vnf.CreateVnfRoute"
+        "function": "org.augugrumi.harbor.routes.nfvo.catalog.CreateVnfRoute"
       },
       {
         "name": "/delete/:id",
         "type": "delete",
-        "function": "routes.vnf.DeleteVnfRoute"
+        "function": "org.augugrumi.harbor.routes.nfvo.catalog.DeleteVnfRoute"
       },
       {
         "name": "/update/:id",
         "type": "post",
-        "function": "routes.vnf.UpdateVnfRoute"
+        "function": "org.augugrumi.harbor.routes.nfvo.catalog.UpdateVnfRoute"
       },
       {
         "name": "/get/:id",
         "type": "get",
-        "function": "routes.vnf.GetVnfRoute"
+        "function": "org.augugrumi.harbor.routes.nfvo.catalog.GetVnfRoute"
       },
       {
         "name": "/list",
         "type": "get",
-        "function": "routes.vnf.ListImagesRoute"
+        "function": "org.augugrumi.harbor.routes.nfvo.catalog.ListImagesRoute"
       }
     ]
   }
