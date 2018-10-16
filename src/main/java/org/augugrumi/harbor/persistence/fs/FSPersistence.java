@@ -132,4 +132,19 @@ public class FSPersistence implements Persistence {
         File toCheck = new File(home.getAbsolutePath() + File.separator + q.getId());
         return new Result<Boolean>(true, toCheck.exists());
     }
+
+    @Override
+    public Result<List<Boolean>> exists(List<Query> queryList) {
+        ArrayList<Boolean> allQueryRes = new ArrayList<>();
+        for (final Query q : queryList) {
+            Result<Boolean> qRes = exists(q);
+
+            if (qRes.isSuccessful()) {
+                allQueryRes.add(qRes.getContent());
+            } else {
+                return new Result<List<Boolean>>(false);
+            }
+        }
+        return new Result<List<Boolean>>(true, allQueryRes);
+    }
 }

@@ -15,4 +15,6 @@ public interface Persistence {
     Result<Void> delete(Query q);
 
     Result<Boolean> exists(Query q);
+
+    Result<List<Boolean>> exists(List<Query> q);
 }

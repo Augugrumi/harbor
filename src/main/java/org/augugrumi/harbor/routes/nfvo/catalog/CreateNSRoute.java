@@ -17,9 +17,18 @@ import spark.Request;
 import spark.Response;
 import spark.Route;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class CreateNSRoute implements Route {
 
     private final static Logger LOG = ConfigManager.getConfig().getApplicationLogger(CreateNSRoute.class);
+
+    private ResponseCreator dbErr() {
+        ResponseCreator err = new ResponseCreator(ResponseCreator.ResponseType.ERROR);
+        err.add(ResponseCreator.Fields.REASON, "Impossible to connect to the database");
+        return err;
+    }
 
     @Override
     public Object handle(Request request, Response response) throws Exception {
@@ -33,6 +42,7 @@ public class CreateNSRoute implements Route {
             if (!query.getContent()) {
                 try {
                     JSONArray body = new JSONArray(request.body());
+                    List<Query> toJoin = new ArrayList<>();
                     for (final Object o : body) {
                         JSONObject element = (JSONObject) o;
                         String id = element.getString(NSConstants.ID);
@@ -47,24 +57,38 @@ public class CreateNSRoute implements Route {
                                 return null;
                             }
                         };
-
-                        Result<Boolean> vnfQuery = vnfDb.exists(q);
-                        // A vnf defined in the json doesn't exist in our db - exiting
-                        if (vnfQuery.isSuccessful() && !vnfQuery.getContent()) {
-                            ResponseCreator error = new ResponseCreator(ResponseCreator.ResponseType.ERROR);
-                            error.add(ResponseCreator.Fields.REASON, "Error: a VNF named " + id +
-                                    " doesn't exist in the Harbor database");
-                            return error;
-                        }
+                        toJoin.add(q);
                     }
+                    Result<List<Boolean>> vnfJoin = vnfDb.exists(toJoin);
+                    List<String> missing = new ArrayList<>();
+                    if (vnfJoin.isSuccessful()) {
+                        List<Boolean> content = vnfJoin.getContent();
+                        for (int i = 0; i < content.size(); i++) {
+                            if (!content.get(i)) {
+                                missing.add(body.getJSONObject(i).getString(NSConstants.ID));
+                            }
+                        }
 
-                    Result insert = nsDb.save(nsElement);
-                    if (insert.isSuccessful()) {
-                        return new ResponseCreator(ResponseCreator.ResponseType.OK);
+                        if (missing.size() != 0) {
+                            ResponseCreator err = new ResponseCreator(ResponseCreator.ResponseType.ERROR);
+                            StringBuilder listOfMissing = new StringBuilder();
+                            for (final String m : missing) {
+                                listOfMissing.append(m);
+                                listOfMissing.append(" ");
+                            }
+                            err.add(ResponseCreator.Fields.REASON, "The following VNF were not found: "
+                                    + listOfMissing.toString().trim());
+                            return err;
+                        } else {
+                            Result insert = nsDb.save(nsElement);
+                            if (insert.isSuccessful()) {
+                                return new ResponseCreator(ResponseCreator.ResponseType.OK);
+                            } else {
+                                return dbErr();
+                            }
+                        }
                     } else {
-                        ResponseCreator err = new ResponseCreator(ResponseCreator.ResponseType.ERROR);
-                        err.add(ResponseCreator.Fields.REASON, "Impossible to save data in the DB");
-                        return err;
+                        return dbErr();
                     }
                 } catch (JSONException e) {
                     ResponseCreator error = new ResponseCreator(ResponseCreator.ResponseType.ERROR);
@@ -82,9 +106,7 @@ public class CreateNSRoute implements Route {
                 return err;
             }
         } else {
-            ResponseCreator err = new ResponseCreator(ResponseCreator.ResponseType.ERROR);
-            err.add(ResponseCreator.Fields.REASON, "Impossible to connect to the database");
-            return err;
+            return dbErr();
         }
     }
 }
