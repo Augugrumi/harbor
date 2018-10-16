@@ -103,8 +103,8 @@ public class FSPersistence implements Persistence {
         File toDelete = new File(home.getAbsolutePath() + File.separator + q.getId());
 
         if (get.isSuccessful()) {
-            Result delete = delete(q);
-            if (delete.isSuccessful()) {
+            Result<Boolean> delete = delete(q);
+            if (delete.isSuccessful() && delete.getContent()) {
                 return get;
             } else {
                 return new Result(false, get.getContent());
@@ -115,15 +115,11 @@ public class FSPersistence implements Persistence {
     }
 
     @Override
-    public Result<Void> delete(Query q) {
+    public Result<Boolean> delete(Query q) {
 
         File toDelete = new File(home.getAbsolutePath() + File.separator + q.getId());
 
-        if (toDelete.delete()) {
-            return new Result<Void>(true);
-        } else {
-            return new Result<Void>(false);
-        }
+        return new Result<Boolean>(true, toDelete.delete());
     }
 
     @Override

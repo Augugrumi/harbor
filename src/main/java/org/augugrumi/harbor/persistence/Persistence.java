@@ -12,7 +12,7 @@ public interface Persistence {
 
     Result pop(Query q);
 
-    Result<Void> delete(Query q);
+    Result<Boolean> delete(Query q);
 
     Result<Boolean> exists(Query q);
 
