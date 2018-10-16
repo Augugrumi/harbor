@@ -51,6 +51,11 @@
         "name": "/catalog/:id",
         "type": "get",
         "function": "org.augugrumi.harbor.routes.nfvo.catalog.GetNSRoute"
+      },
+      {
+        "name": "/catalog/:id",
+        "type": "delete",
+        "function": "org.augugrumi.harbor.routes.nfvo.catalog.DeleteNSRoute"
       }
     ]
   }
