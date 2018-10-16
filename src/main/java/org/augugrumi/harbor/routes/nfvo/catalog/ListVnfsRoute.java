@@ -1,7 +1,7 @@
 package org.augugrumi.harbor.routes.nfvo.catalog;
 
 import org.augugrumi.harbor.persistence.Persistence;
-import org.augugrumi.harbor.persistence.PersistenceFactory;
+import org.augugrumi.harbor.persistence.PersistenceRetriever;
 import org.augugrumi.harbor.persistence.Result;
 import org.augugrumi.harbor.util.ConfigManager;
 import org.slf4j.Logger;
@@ -12,8 +12,6 @@ import spark.Route;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static org.augugrumi.harbor.persistence.Costants.VNF_HOME;
 
 /**
  * The route returns a list of images currently uploaded in Harbor
@@ -32,7 +30,7 @@ public class ListVnfsRoute implements Route {
     @Override
     public Object handle(Request request, Response response) {
         LOG.debug(this.getClass().getSimpleName() + " called");
-        final Persistence db = PersistenceFactory.getFSPersistence(VNF_HOME);
+        final Persistence db = PersistenceRetriever.getVnfDb();
         ResponseCreator toSendBack;
 
         List<Result<String>> res = db.get();

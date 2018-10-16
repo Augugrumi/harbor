@@ -1,7 +1,7 @@
 package org.augugrumi.harbor.routes.nfvo.catalog;
 
 import org.augugrumi.harbor.persistence.Persistence;
-import org.augugrumi.harbor.persistence.PersistenceFactory;
+import org.augugrumi.harbor.persistence.PersistenceRetriever;
 import org.augugrumi.harbor.persistence.Query;
 import org.augugrumi.harbor.persistence.Result;
 import org.augugrumi.harbor.routes.util.RequestQuery;
@@ -12,7 +12,6 @@ import spark.Request;
 import spark.Response;
 import spark.Route;
 
-import static org.augugrumi.harbor.persistence.Costants.VNF_HOME;
 import static org.augugrumi.harbor.routes.util.Costants.ID;
 
 /**
@@ -53,7 +52,7 @@ public class CreateVnfRoute implements Route {
     public Object handle(Request request, Response response) throws Exception {
 
         LOG.debug(this.getClass().getSimpleName() + " called");
-        final Persistence db = PersistenceFactory.getFSPersistence(VNF_HOME);
+        final Persistence db = PersistenceRetriever.getVnfDb();
         final Query q = new RequestQuery(ID, request);
         ResponseCreator toSendBack;
 
