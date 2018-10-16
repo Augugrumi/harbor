@@ -18,7 +18,7 @@ import static org.augugrumi.harbor.persistence.Costants.VNF_HOME;
 /**
  * The route returns a list of images currently uploaded in Harbor
  */
-public class ListImagesRoute implements Route {
+public class ListVnfsRoute implements Route {
 
     final private static Logger LOG = ConfigManager.getConfig().getApplicationLogger(DeleteVnfRoute.class);
 

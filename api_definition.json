@@ -35,7 +35,7 @@
       {
         "name": "/list",
         "type": "get",
-        "function": "org.augugrumi.harbor.routes.nfvo.catalog.ListImagesRoute"
+        "function": "org.augugrumi.harbor.routes.nfvo.catalog.ListVnfsRoute"
       }
     ]
   }
