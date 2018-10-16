@@ -24,7 +24,7 @@ public class FSQuery implements Query {
     }
 
     @Override
-    public String getId() {
+    public String getID() {
         return file.getName();
     }
 

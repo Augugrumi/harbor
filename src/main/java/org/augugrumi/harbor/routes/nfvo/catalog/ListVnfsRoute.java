@@ -4,6 +4,7 @@ import org.augugrumi.harbor.persistence.Persistence;
 import org.augugrumi.harbor.persistence.PersistenceRetriever;
 import org.augugrumi.harbor.persistence.Result;
 import org.augugrumi.harbor.util.ConfigManager;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import routes.util.ResponseCreator;
 import spark.Request;
@@ -35,18 +36,17 @@ public class ListVnfsRoute implements Route {
         final Persistence db = PersistenceRetriever.getVnfDb();
         ResponseCreator toSendBack;
 
-        List<Result<String>> res = db.get();
-        List<String> vnfNames = new ArrayList<>();
-        for (final Result<String> r : res) {
-            if (r.isSuccessful()) {
-                vnfNames.add(r.getContent());
-            } else {
-                return dbErr();
+        Result<List<JSONObject>> res = db.get();
+        if (res.isSuccessful()) {
+            List<String> vnfNames = new ArrayList<>();
+            for (final JSONObject o : res.getContent()) {
+                vnfNames.add(o.getString(Persistence.Fields.ID));
             }
+            toSendBack = new ResponseCreator(ResponseCreator.ResponseType.OK);
+            toSendBack.add(ResponseCreator.Fields.CONTENT, vnfNames);
+            return toSendBack;
+        } else {
+            return dbErr();
         }
-        toSendBack = new ResponseCreator(ResponseCreator.ResponseType.OK);
-        toSendBack.add(ResponseCreator.Fields.CONTENT, vnfNames);
-        return toSendBack;
     }
-
 }

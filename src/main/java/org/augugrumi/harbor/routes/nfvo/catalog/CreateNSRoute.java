@@ -4,6 +4,7 @@ import org.augugrumi.harbor.persistence.Persistence;
 import org.augugrumi.harbor.persistence.PersistenceRetriever;
 import org.augugrumi.harbor.persistence.Query;
 import org.augugrumi.harbor.persistence.Result;
+import org.augugrumi.harbor.persistence.data.NetworkService;
 import org.augugrumi.harbor.routes.nfvo.definition.NSConstants;
 import org.augugrumi.harbor.routes.util.ParamConstants;
 import org.augugrumi.harbor.routes.util.RequestQuery;
@@ -30,6 +31,17 @@ public class CreateNSRoute implements Route {
     public Object handle(Request request, Response response) throws Exception {
 
         LOG.debug(this.getClass().getSimpleName() + " called");
+        NetworkService ns = new NetworkService(request.params(ParamConstants.ID));
+
+        if (ns.isValid()) {
+            return new ResponseCreator(ResponseCreator.ResponseType.ERROR)
+                    .add(ResponseCreator.Fields.REASON, "NS already existing");
+        } else {
+            // TODO save the data in a particular way.
+        }
+
+
+        LOG.debug(this.getClass().getSimpleName() + " called");
         final Persistence vnfDb = PersistenceRetriever.getVnfDb();
         final Persistence nsDb = PersistenceRetriever.getNSDb();
         final Query nsElement = new RequestQuery(ParamConstants.ID, request);
@@ -44,7 +56,7 @@ public class CreateNSRoute implements Route {
                         String id = element.getString(NSConstants.ID);
                         Query q = new Query() {
                             @Override
-                            public String getId() {
+                            public String getID() {
                                 return id;
                             }
 

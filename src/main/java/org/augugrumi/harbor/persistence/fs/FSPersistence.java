@@ -3,7 +3,9 @@ package org.augugrumi.harbor.persistence.fs;
 import org.augugrumi.harbor.persistence.Persistence;
 import org.augugrumi.harbor.persistence.Query;
 import org.augugrumi.harbor.persistence.Result;
+import org.augugrumi.harbor.persistence.exception.DbException;
 import org.augugrumi.harbor.util.ConfigManager;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 
 import java.io.*;
@@ -26,88 +28,76 @@ public class FSPersistence implements Persistence {
         }
     }
 
-    private boolean writeDown(File fileName, String content) {
+    private boolean writeDown(File fileName, String content) throws IOException {
         try (FileOutputStream outputStream = new FileOutputStream(fileName)) {
             outputStream.write(content.getBytes());
             return true;
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
         }
-
-        return false;
     }
 
     @Override
-    public Result save(Query q) {
+    public Result<Void> save(Query q) throws DbException {
 
-        File toSave = new File(home.getAbsolutePath() + File.separator + q.getId());
-        if (toSave.exists()) {
-            if (toSave.delete()) {
-                return new Result<Void>(writeDown(toSave, q.getContent()));
-            } else {
-                LOG.warn("Impossible to save file " + q.getId() + ": impossible to delete old entry.");
-            }
-        }
+        File toSave = new File(home.getAbsolutePath() + File.separator + q.getID());
         try {
+            if (toSave.exists()) {
+                if (toSave.delete()) {
+                    return new Result<Void>(writeDown(toSave, q.getContent()));
+                } else {
+                    LOG.warn("Impossible to save file " + q.getID() + ": impossible to delete old entry.");
+                }
+            }
             toSave.createNewFile();
             return new Result<Void>(writeDown(toSave, q.getContent()));
         } catch (IOException e) {
-            LOG.warn("Impossible to create a new file");
-            e.printStackTrace();
-            return new Result<Void>(false);
+            throw new DbException("Impossible to create a new file");
         }
     }
 
     @Override
-    public Result get(Query q) {
+    public Result<JSONObject> get(Query q) throws DbException {
 
-        File toRead = new File(home.getAbsolutePath() + File.separator + q.getId());
+        File toRead = new File(home.getAbsolutePath() + File.separator + q.getID());
         try (FileInputStream inputStream = new FileInputStream(toRead)) {
             StringBuilder res = new StringBuilder();
             int i;
             while ((i = inputStream.read()) != -1) {
                 res.append((char) i);
             }
-            return new Result<String>(true, res.toString());
+            return new Result<JSONObject>(true, new JSONObject(res.toString()));
         } catch (FileNotFoundException e) {
-            LOG.warn("Impossible to found the file " + q.getId() + "!");
-            return new Result<Integer>(false, -1);
+            throw new DbException("Impossible to found the file " + q.getID());
         } catch (IOException e) {
-            LOG.warn("Error while reading the file " + q.getId() + "!");
-            return new Result<Integer>(false, -2);
+            throw new DbException("Error while reading the file " + q.getID());
         }
     }
 
     @Override
-    public List<Result<String>> get() {
-
+    public Result<List<JSONObject>> get() {
         final File[] elements = home.listFiles();
-        final List<Result<String>> res = new ArrayList<>();
+        final List<JSONObject> res = new ArrayList<>();
         if (elements != null) {
             for (File f : elements) {
                 if (f.isFile()) {
-                    res.add(new Result<>(true, f.getName()));
+                    res.add(new JSONObject().put(Fields.ID, f.getName()));
                 }
             }
         }
-
-        return res;
+        return new Result<>(true, res);
     }
 
     @Override
-    public Result pop(Query q) {
+    public Result<JSONObject> pop(Query q) {
 
-        Result get = get(q);
-        File toDelete = new File(home.getAbsolutePath() + File.separator + q.getId());
+        Result<JSONObject> get = get(q);
+        File toDelete = new File(home.getAbsolutePath() + File.separator + q.getID());
 
         if (get.isSuccessful()) {
             Result<Boolean> delete = delete(q);
             if (delete.isSuccessful() && delete.getContent()) {
                 return get;
             } else {
-                return new Result(false, get.getContent());
+                return new Result<JSONObject>(false, get.getContent());
             }
         }
 
@@ -117,7 +107,7 @@ public class FSPersistence implements Persistence {
     @Override
     public Result<Boolean> delete(Query q) {
 
-        File toDelete = new File(home.getAbsolutePath() + File.separator + q.getId());
+        File toDelete = new File(home.getAbsolutePath() + File.separator + q.getID());
 
         return new Result<Boolean>(true, toDelete.delete());
     }
@@ -125,7 +115,7 @@ public class FSPersistence implements Persistence {
     @Override
     public Result<Boolean> exists(Query q) {
 
-        File toCheck = new File(home.getAbsolutePath() + File.separator + q.getId());
+        File toCheck = new File(home.getAbsolutePath() + File.separator + q.getID());
         return new Result<Boolean>(true, toCheck.exists());
     }
 

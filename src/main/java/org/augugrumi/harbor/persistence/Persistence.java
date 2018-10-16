@@ -1,20 +1,28 @@
 package org.augugrumi.harbor.persistence;
 
+import org.augugrumi.harbor.persistence.exception.DbException;
+import org.json.JSONObject;
+
 import java.util.List;
 
 public interface Persistence {
 
-    Result save(Query q);
+    public interface Fields {
+        String ID = "id";
+    }
 
-    Result get(Query q);
+    Result<Void> save(Query q) throws DbException;
 
-    List<Result<String>> get();
+    Result<JSONObject> get(Query q) throws DbException;
 
-    Result pop(Query q);
+    //List<Result<JSONArray>> get() throws DbException;
+    Result<List<JSONObject>> get() throws DbException;
 
-    Result<Boolean> delete(Query q);
+    Result<JSONObject> pop(Query q) throws DbException;
 
-    Result<Boolean> exists(Query q);
+    Result<Boolean> delete(Query q) throws DbException;
 
-    Result<List<Boolean>> exists(List<Query> q);
+    Result<Boolean> exists(Query q) throws DbException;
+
+    Result<List<Boolean>> exists(List<Query> q) throws DbException;
 }

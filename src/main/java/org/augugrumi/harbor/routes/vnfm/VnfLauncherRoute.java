@@ -5,8 +5,9 @@ import k8s.K8sFactory;
 import org.augugrumi.harbor.persistence.Persistence;
 import org.augugrumi.harbor.persistence.PersistenceRetriever;
 import org.augugrumi.harbor.persistence.Query;
-import org.augugrumi.harbor.persistence.Result;
+import org.augugrumi.harbor.persistence.data.VirtualNetworkFunction;
 import org.augugrumi.harbor.routes.util.RequestQuery;
+import org.augugrumi.harbor.routes.util.exceptions.NoSuchNetworkComponentException;
 import org.augugrumi.harbor.util.ConfigManager;
 import org.augugrumi.harbor.util.FileUtils;
 import org.slf4j.Logger;
@@ -50,17 +51,16 @@ public class VnfLauncherRoute implements Route {
         LOG.debug(this.getClass().getSimpleName() + " called");
         final Persistence db = PersistenceRetriever.getVnfDb();
         final Query q = new RequestQuery(ID, request);
+        final K8sAPI api = K8sFactory.getCliAPI();
 
-        Result<String> dbRes = db.get(q);
-        if (dbRes.isSuccessful()) {
-            final K8sAPI api = K8sFactory.getCliAPI();
+        try {
+            VirtualNetworkFunction vnf = new VirtualNetworkFunction(request.params(ID));
             return api.createFromYaml(
-                    FileUtils.createTmpFile("hrbr", ".yaml", dbRes.getContent()).toURI().toURL(),
+                    FileUtils.createTmpFile("hrbr", ".yaml", vnf.getDefinition()).toURI().toURL(),
                     res -> res.getAttachment().toString());
-        } else {
-            final ResponseCreator toSendBack = new ResponseCreator(ResponseCreator.ResponseType.ERROR);
-            toSendBack.add(ResponseCreator.Fields.REASON, "The requested VNF doesn't exist");
-            return toSendBack;
+        } catch (NoSuchNetworkComponentException e) {
+            return new ResponseCreator(ResponseCreator.ResponseType.ERROR)
+                    .add(ResponseCreator.Fields.REASON, e.getMessage());
         }
     }
 }

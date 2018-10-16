@@ -14,7 +14,7 @@ public class RequestQuery implements Query {
     }
 
     @Override
-    public String getId() {
+    public String getID() {
         return REQUEST.params(ID);
     }
 

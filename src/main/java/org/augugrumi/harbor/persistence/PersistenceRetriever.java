@@ -1,7 +1,7 @@
 package org.augugrumi.harbor.persistence;
 
-import static org.augugrumi.harbor.persistence.Costants.NS_HOME;
-import static org.augugrumi.harbor.persistence.Costants.VNF_HOME;
+import static org.augugrumi.harbor.persistence.Constants.NS_HOME;
+import static org.augugrumi.harbor.persistence.Constants.VNF_HOME;
 
 public class PersistenceRetriever {
 
