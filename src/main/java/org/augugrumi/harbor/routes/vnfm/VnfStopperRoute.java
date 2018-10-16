@@ -3,7 +3,7 @@ package org.augugrumi.harbor.routes.vnfm;
 import k8s.K8sAPI;
 import k8s.K8sFactory;
 import org.augugrumi.harbor.persistence.Persistence;
-import org.augugrumi.harbor.persistence.PersistenceFactory;
+import org.augugrumi.harbor.persistence.PersistenceRetriever;
 import org.augugrumi.harbor.persistence.Query;
 import org.augugrumi.harbor.persistence.Result;
 import org.augugrumi.harbor.routes.util.RequestQuery;
@@ -15,8 +15,7 @@ import spark.Request;
 import spark.Response;
 import spark.Route;
 
-import static org.augugrumi.harbor.persistence.Costants.VNF_HOME;
-import static org.augugrumi.harbor.routes.util.Costants.ID;
+import static org.augugrumi.harbor.routes.util.ParamConstants.ID;
 
 /**
  * Route stopping the selected YAML id. Please note that if you've previously updated the YAML with another one, this
@@ -48,7 +47,7 @@ public class VnfStopperRoute implements Route {
     public Object handle(Request request, Response response) throws Exception {
 
         LOG.debug(this.getClass().getSimpleName() + " called");
-        final Persistence db = PersistenceFactory.getFSPersistence(VNF_HOME);
+        final Persistence db = PersistenceRetriever.getVnfDb();
         final Query q = new RequestQuery(ID, request);
 
         Result<String> dbRes = db.get(q);
