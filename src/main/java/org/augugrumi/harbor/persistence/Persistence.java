@@ -4,7 +4,7 @@ public interface Persistence {
 
     Result save(Query q);
 
-    Result retrieve(Query q);
+    Result get(Query q);
 
     Result pop(Query q);
 

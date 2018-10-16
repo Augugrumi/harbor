@@ -59,7 +59,7 @@ public class FSPersistence implements Persistence {
     }
 
     @Override
-    public Result retrieve(Query q) {
+    public Result get(Query q) {
 
         File toRead = new File(home.getAbsolutePath() + File.separator + q.getId());
         try (FileInputStream inputStream = new FileInputStream(toRead)) {
@@ -83,7 +83,7 @@ public class FSPersistence implements Persistence {
     @Override
     public Result pop(Query q) {
 
-        Result get = retrieve(q);
+        Result get = get(q);
         File toDelete = new File(home.getAbsolutePath() + File.separator + q.getId());
 
         if (get.isSuccessful()) {
