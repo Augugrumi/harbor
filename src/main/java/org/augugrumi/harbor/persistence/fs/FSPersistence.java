@@ -7,6 +7,8 @@ import org.augugrumi.harbor.util.ConfigManager;
 import org.slf4j.Logger;
 
 import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class FSPersistence implements Persistence {
 
@@ -71,11 +73,27 @@ public class FSPersistence implements Persistence {
             return new Result<String>(true, res.toString());
         } catch (FileNotFoundException e) {
             LOG.warn("Impossible to found the file " + q.getId() + "!");
-            return new Result<Void>(false);
+            return new Result<Integer>(false, -1);
         } catch (IOException e) {
             LOG.warn("Error while reading the file " + q.getId() + "!");
-            return new Result<Void>(false);
+            return new Result<Integer>(false, -2);
         }
+    }
+
+    @Override
+    public List<Result<String>> get() {
+
+        final File[] elements = home.listFiles();
+        final List<Result<String>> res = new ArrayList<>();
+        if (elements != null) {
+            for (File f : elements) {
+                if (f.isFile()) {
+                    res.add(new Result<>(true, f.getName()));
+                }
+            }
+        }
+
+        return res;
     }
 
     @Override
