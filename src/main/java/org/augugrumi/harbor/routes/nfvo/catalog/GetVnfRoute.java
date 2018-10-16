@@ -12,8 +12,7 @@ import spark.Request;
 import spark.Response;
 import spark.Route;
 
-import java.io.IOException;
-
+import static org.augugrumi.harbor.routes.util.ErrorHandling.dbErr;
 import static org.augugrumi.harbor.routes.util.ParamConstants.ID;
 
 /**
@@ -61,7 +60,7 @@ public class GetVnfRoute implements Route {
             if ((Integer) res.getContent() == -1) {
                 toSendBack.add(ResponseCreator.Fields.REASON, "The requested file doesn't exist");
             } else {
-                throw new IOException("The server encountered an IO error while accessing " + request.params(ID));
+                return dbErr();
             }
         }
         return toSendBack;

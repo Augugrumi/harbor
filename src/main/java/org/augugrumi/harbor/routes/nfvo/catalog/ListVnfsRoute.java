@@ -13,6 +13,8 @@ import spark.Route;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.augugrumi.harbor.routes.util.ErrorHandling.dbErr;
+
 /**
  * The route returns a list of images currently uploaded in Harbor
  */
@@ -38,6 +40,8 @@ public class ListVnfsRoute implements Route {
         for (final Result<String> r : res) {
             if (r.isSuccessful()) {
                 vnfNames.add(r.getContent());
+            } else {
+                return dbErr();
             }
         }
         toSendBack = new ResponseCreator(ResponseCreator.ResponseType.OK);

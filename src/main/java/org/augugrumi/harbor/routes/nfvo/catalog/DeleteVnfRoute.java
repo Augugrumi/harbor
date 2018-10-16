@@ -12,6 +12,7 @@ import spark.Request;
 import spark.Response;
 import spark.Route;
 
+import static org.augugrumi.harbor.routes.util.ErrorHandling.dbErr;
 import static org.augugrumi.harbor.routes.util.ParamConstants.ID;
 
 /**
@@ -65,20 +66,19 @@ public class DeleteVnfRoute implements Route {
         Result<Boolean> exist = db.exists(q);
         if (exist.isSuccessful()) {
             if (exist.getContent()) {
-                final Result<Void> res = db.delete(q);
-                if (res.isSuccessful()) {
+                final Result<Boolean> res = db.delete(q);
+                if (res.isSuccessful() && res.getContent()) {
                     toSendBack = new ResponseCreator(ResponseCreator.ResponseType.OK);
                 } else {
-                    toSendBack = new ResponseCreator(ResponseCreator.ResponseType.ERROR);
-                    toSendBack.add(ResponseCreator.Fields.REASON, "Failed to delete the file");
+                    toSendBack = new ResponseCreator(ResponseCreator.ResponseType.ERROR)
+                            .add(ResponseCreator.Fields.REASON, "Failed to delete the file");
                 }
             } else {
-                toSendBack = new ResponseCreator(ResponseCreator.ResponseType.ERROR);
-                toSendBack.add(ResponseCreator.Fields.REASON, "The requested YAML doesn't exist");
+                toSendBack = new ResponseCreator(ResponseCreator.ResponseType.ERROR)
+                        .add(ResponseCreator.Fields.REASON, "The requested YAML doesn't exist");
             }
         } else {
-            toSendBack = new ResponseCreator(ResponseCreator.ResponseType.ERROR);
-            toSendBack.add(ResponseCreator.Fields.REASON, "Impossible to access the DB");
+            return dbErr();
         }
         return toSendBack;
     }

@@ -12,6 +12,7 @@ import spark.Request;
 import spark.Response;
 import spark.Route;
 
+import static org.augugrumi.harbor.routes.util.ErrorHandling.dbErr;
 import static org.augugrumi.harbor.routes.util.ParamConstants.ID;
 
 /**
@@ -73,13 +74,11 @@ public class CreateVnfRoute implements Route {
                 if (res.isSuccessful()) {
                     toSendBack = new ResponseCreator(ResponseCreator.ResponseType.OK);
                 } else {
-                    toSendBack = new ResponseCreator(ResponseCreator.ResponseType.ERROR);
-                    toSendBack.add(ResponseCreator.Fields.REASON, "Impossible to save data in the DB");
+                    return dbErr();
                 }
             }
         } else {
-            toSendBack = new ResponseCreator(ResponseCreator.ResponseType.ERROR);
-            toSendBack.add(ResponseCreator.Fields.REASON, "Impossible to access the DB");
+            return dbErr();
         }
         return toSendBack;
     }

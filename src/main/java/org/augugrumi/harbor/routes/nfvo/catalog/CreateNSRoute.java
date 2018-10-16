@@ -20,15 +20,11 @@ import spark.Route;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.augugrumi.harbor.routes.util.ErrorHandling.dbErr;
+
 public class CreateNSRoute implements Route {
 
     private final static Logger LOG = ConfigManager.getConfig().getApplicationLogger(CreateNSRoute.class);
-
-    private ResponseCreator dbErr() {
-        ResponseCreator err = new ResponseCreator(ResponseCreator.ResponseType.ERROR);
-        err.add(ResponseCreator.Fields.REASON, "Impossible to connect to the database");
-        return err;
-    }
 
     @Override
     public Object handle(Request request, Response response) throws Exception {
