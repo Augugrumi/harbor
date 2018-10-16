@@ -3,6 +3,26 @@
     "name": "/vnf",
     "path": [
       {
+        "name": "/catalog/:id",
+        "type": "get",
+        "function": "org.augugrumi.harbor.routes.nfvo.catalog.GetVnfRoute"
+      },
+      {
+        "name": "/catalog/:id",
+        "type": "post",
+        "function": "org.augugrumi.harbor.routes.nfvo.catalog.CreateVnfRoute"
+      },
+      {
+        "name": "/catalog/:id",
+        "type": "delete",
+        "function": "org.augugrumi.harbor.routes.nfvo.catalog.DeleteVnfRoute"
+      },
+      {
+        "name": "/catalog/",
+        "type": "get",
+        "function": "org.augugrumi.harbor.routes.nfvo.catalog.ListVnfsRoute"
+      },
+      {
         "name": "/launch/:id",
         "type": "get",
         "function": "org.augugrumi.harbor.routes.vnfm.VnfLauncherRoute"
@@ -13,29 +33,19 @@
         "function": "org.augugrumi.harbor.routes.vnfm.VnfStopperRoute"
       },
       {
-        "name": "/create/:id",
-        "type": "post",
-        "function": "org.augugrumi.harbor.routes.nfvo.catalog.CreateVnfRoute"
-      },
-      {
-        "name": "/delete/:id",
-        "type": "delete",
-        "function": "org.augugrumi.harbor.routes.nfvo.catalog.DeleteVnfRoute"
-      },
-      {
         "name": "/update/:id",
         "type": "post",
         "function": "org.augugrumi.harbor.routes.nfvo.catalog.UpdateVnfRoute"
-      },
+      }
+    ]
+  },
+  {
+    "name": "/ns",
+    "path": [
       {
-        "name": "/get/:id",
-        "type": "get",
-        "function": "org.augugrumi.harbor.routes.nfvo.catalog.GetVnfRoute"
-      },
-      {
-        "name": "/list",
-        "type": "get",
-        "function": "org.augugrumi.harbor.routes.nfvo.catalog.ListVnfsRoute"
+        "name": "/catalog/:id",
+        "type": "post",
+        "function": "org.augugrumi.harbor.routes.nfvo.catalog.CreateNSRoute"
       }
     ]
   }

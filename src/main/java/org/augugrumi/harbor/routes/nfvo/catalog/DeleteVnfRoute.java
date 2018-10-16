@@ -12,7 +12,7 @@ import spark.Request;
 import spark.Response;
 import spark.Route;
 
-import static org.augugrumi.harbor.routes.util.Costants.ID;
+import static org.augugrumi.harbor.routes.util.ParamConstants.ID;
 
 /**
  * Deletes a YAML configuration given the right id. The operation fails if a bogus id is provided, or if the backend
@@ -44,6 +44,13 @@ public class DeleteVnfRoute implements Route {
      *         "reason": "The requested YAML doesn't exist"
      *     }
      * </pre>
+     * Finally, the DB could not be reachable. In that case, the error will be:
+     * <pre>
+     *     {
+     *         "result": "error",
+     *         "reason": "Impossible to access the DB"
+     *     }
+     * </pre>
      * <p>
      * This method never occur in an 500 Internal Error.
      */
@@ -55,17 +62,23 @@ public class DeleteVnfRoute implements Route {
         final Query q = new RequestQuery(ID, request);
         ResponseCreator toSendBack;
 
-        if (db.exists(q).isSuccessful()) {
-            final Result<Void> res = db.delete(q);
-            if (res.isSuccessful()) {
-                toSendBack = new ResponseCreator(ResponseCreator.ResponseType.OK);
+        Result<Boolean> exist = db.exists(q);
+        if (exist.isSuccessful()) {
+            if (exist.getContent()) {
+                final Result<Void> res = db.delete(q);
+                if (res.isSuccessful()) {
+                    toSendBack = new ResponseCreator(ResponseCreator.ResponseType.OK);
+                } else {
+                    toSendBack = new ResponseCreator(ResponseCreator.ResponseType.ERROR);
+                    toSendBack.add(ResponseCreator.Fields.REASON, "Failed to delete the file");
+                }
             } else {
                 toSendBack = new ResponseCreator(ResponseCreator.ResponseType.ERROR);
-                toSendBack.add(ResponseCreator.Fields.REASON, "Failed to delete the file");
+                toSendBack.add(ResponseCreator.Fields.REASON, "The requested YAML doesn't exist");
             }
         } else {
             toSendBack = new ResponseCreator(ResponseCreator.ResponseType.ERROR);
-            toSendBack.add(ResponseCreator.Fields.REASON, "The requested YAML doesn't exist");
+            toSendBack.add(ResponseCreator.Fields.REASON, "Impossible to access the DB");
         }
         return toSendBack;
     }

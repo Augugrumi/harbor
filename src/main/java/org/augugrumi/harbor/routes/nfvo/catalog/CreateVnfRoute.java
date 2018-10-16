@@ -12,7 +12,7 @@ import spark.Request;
 import spark.Response;
 import spark.Route;
 
-import static org.augugrumi.harbor.routes.util.Costants.ID;
+import static org.augugrumi.harbor.routes.util.ParamConstants.ID;
 
 /**
  * This route adds to the internal database a new Kubernetes YAML. Note that you have to provide an unique id to this
@@ -39,11 +39,18 @@ public class CreateVnfRoute implements Route {
      *         "reason": "A YAML with the same key already exists"
      *     }
      * </pre>
-     * Finally, there is the possibility that the DB can't store more data. In this case, the json returned will be:
+     * there is the possibility that the DB can't store more data too. In this case, the json returned will be:
      * <pre>
      *     {
      *         "result": "error",
      *         "reason": "Impossible to save data in the DB"
+     *     }
+     * </pre>
+     * Finally, the DB could not be reachable. In that case, the error will be:
+     * <pre>
+     *     {
+     *         "result": "error",
+     *         "reason": "Impossible to access the DB"
      *     }
      * </pre>
      * @throws Exception when an internal error occurs
@@ -56,17 +63,23 @@ public class CreateVnfRoute implements Route {
         final Query q = new RequestQuery(ID, request);
         ResponseCreator toSendBack;
 
-        if (db.exists(q).isSuccessful()) {
-            toSendBack = new ResponseCreator(ResponseCreator.ResponseType.ERROR);
-            toSendBack.add(ResponseCreator.Fields.REASON, "A YAML with the same key already exists");
-        } else {
-            Result res = db.save(q);
-            if (res.isSuccessful()) {
-                toSendBack = new ResponseCreator(ResponseCreator.ResponseType.OK);
-            } else {
+        Result<Boolean> exists = db.exists(q);
+        if (exists.isSuccessful()) {
+            if (exists.getContent()) {
                 toSendBack = new ResponseCreator(ResponseCreator.ResponseType.ERROR);
-                toSendBack.add(ResponseCreator.Fields.REASON, "Impossible to save data in the DB");
+                toSendBack.add(ResponseCreator.Fields.REASON, "A YAML with the same key already exists");
+            } else {
+                Result res = db.save(q);
+                if (res.isSuccessful()) {
+                    toSendBack = new ResponseCreator(ResponseCreator.ResponseType.OK);
+                } else {
+                    toSendBack = new ResponseCreator(ResponseCreator.ResponseType.ERROR);
+                    toSendBack.add(ResponseCreator.Fields.REASON, "Impossible to save data in the DB");
+                }
             }
+        } else {
+            toSendBack = new ResponseCreator(ResponseCreator.ResponseType.ERROR);
+            toSendBack.add(ResponseCreator.Fields.REASON, "Impossible to access the DB");
         }
         return toSendBack;
     }

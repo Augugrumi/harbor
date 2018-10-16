@@ -14,7 +14,7 @@ import spark.Route;
 
 import java.io.IOException;
 
-import static org.augugrumi.harbor.routes.util.Costants.ID;
+import static org.augugrumi.harbor.routes.util.ParamConstants.ID;
 
 /**
  * This route returns the YAML definition of the given id

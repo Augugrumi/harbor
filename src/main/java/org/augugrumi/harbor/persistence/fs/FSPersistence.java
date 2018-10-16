@@ -127,9 +127,9 @@ public class FSPersistence implements Persistence {
     }
 
     @Override
-    public Result<Void> exists(Query q) {
+    public Result<Boolean> exists(Query q) {
 
         File toCheck = new File(home.getAbsolutePath() + File.separator + q.getId());
-        return new Result<Void>(toCheck.exists());
+        return new Result<Boolean>(true, toCheck.exists());
     }
 }

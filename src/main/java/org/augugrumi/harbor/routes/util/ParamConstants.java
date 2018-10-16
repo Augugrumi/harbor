@@ -1,5 +1,5 @@
 package org.augugrumi.harbor.routes.util;
 
-public interface Costants {
+public interface ParamConstants {
     String ID = ":id";
 }
