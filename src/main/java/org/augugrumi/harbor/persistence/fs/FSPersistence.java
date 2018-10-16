@@ -70,12 +70,10 @@ public class FSPersistence implements Persistence {
             }
             return new Result<String>(true, res.toString());
         } catch (FileNotFoundException e) {
-            LOG.warn("Impossible to file the found!");
-            e.printStackTrace();
+            LOG.warn("Impossible to found the file " + q.getId() + "!");
             return new Result<Void>(false);
         } catch (IOException e) {
-            LOG.warn("Error while reading the file");
-            e.printStackTrace();
+            LOG.warn("Error while reading the file " + q.getId() + "!");
             return new Result<Void>(false);
         }
     }
