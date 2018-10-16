@@ -1,5 +1,8 @@
 package org.augugrumi.harbor.routes.nfvo.catalog;
 
+import org.augugrumi.harbor.persistence.Persistence;
+import org.augugrumi.harbor.persistence.PersistenceFactory;
+import org.augugrumi.harbor.persistence.Result;
 import org.augugrumi.harbor.util.ConfigManager;
 import org.slf4j.Logger;
 import routes.util.ResponseCreator;
@@ -7,9 +10,10 @@ import spark.Request;
 import spark.Response;
 import spark.Route;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+
+import static org.augugrumi.harbor.persistence.Costants.VNF_HOME;
 
 /**
  * The route returns a list of images currently uploaded in Harbor
@@ -27,21 +31,19 @@ public class ListImagesRoute implements Route {
      */
     @Override
     public Object handle(Request request, Response response) {
-
         LOG.debug(this.getClass().getSimpleName() + " called");
+        final Persistence db = PersistenceFactory.getFSPersistence(VNF_HOME);
+        ResponseCreator toSendBack;
 
-        final File folder = new File(ConfigManager.getConfig().getYamlStorageFolder());
-        final File[] listOfFiles = folder.listFiles();
-        final List<String> images = new ArrayList<>();
-        if (listOfFiles != null) {
-            for (File f : listOfFiles) {
-                if (f.isFile() && f.getName().matches(".*[.]ya?ml")) {
-                    images.add(f.getName());
-                }
+        List<Result<String>> res = db.get();
+        List<String> vnfNames = new ArrayList<>();
+        for (final Result<String> r : res) {
+            if (r.isSuccessful()) {
+                vnfNames.add(r.getContent());
             }
         }
-        final ResponseCreator toSendBack = new ResponseCreator(ResponseCreator.ResponseType.OK);
-        toSendBack.add(ResponseCreator.Fields.CONTENT, images);
+        toSendBack = new ResponseCreator(ResponseCreator.ResponseType.OK);
+        toSendBack.add(ResponseCreator.Fields.CONTENT, vnfNames);
         return toSendBack;
     }
 

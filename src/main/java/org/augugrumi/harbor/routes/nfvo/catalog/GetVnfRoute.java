@@ -1,15 +1,21 @@
 package org.augugrumi.harbor.routes.nfvo.catalog;
 
+import org.augugrumi.harbor.persistence.Persistence;
+import org.augugrumi.harbor.persistence.PersistenceFactory;
+import org.augugrumi.harbor.persistence.Query;
+import org.augugrumi.harbor.persistence.Result;
+import org.augugrumi.harbor.routes.util.RequestQuery;
 import org.augugrumi.harbor.util.ConfigManager;
-import org.json.JSONObject;
 import org.slf4j.Logger;
-import routes.util.FileNameUtils;
+import routes.util.ResponseCreator;
 import spark.Request;
 import spark.Response;
 import spark.Route;
 
-import java.io.File;
-import java.io.FileInputStream;
+import java.io.IOException;
+
+import static org.augugrumi.harbor.persistence.Costants.VNF_HOME;
+import static org.augugrumi.harbor.routes.util.Costants.ID;
 
 /**
  * This route returns the YAML definition of the given id
@@ -43,27 +49,22 @@ public class GetVnfRoute implements Route {
     public Object handle(Request request, Response response) throws Exception {
 
         LOG.debug(this.getClass().getSimpleName() + " called");
+        final Persistence db = PersistenceFactory.getFSPersistence(VNF_HOME);
+        final Query q = new RequestQuery(ID, request);
+        ResponseCreator toSendBack;
 
-        final JSONObject toSendBack = new JSONObject();
-        final String filename = FileNameUtils.validateFileName(request.params(":id"));
-        final File fileToReturn = new File(ConfigManager.getConfig().getYamlStorageFolder() + File.separator + filename);
-
-        if (fileToReturn.exists()) {
-            FileInputStream fis = new FileInputStream(fileToReturn);
-
-            StringBuilder fileRead = new StringBuilder();
-            int read;
-            while ((read = fis.read()) != -1) {
-                fileRead.append((char) read);
-            }
-
-            toSendBack.put("result", "ok");
-            toSendBack.put("yaml", fileRead.toString());
+        Result res = db.get(q);
+        if (res.isSuccessful()) {
+            toSendBack = new ResponseCreator(ResponseCreator.ResponseType.OK);
+            toSendBack.add(ResponseCreator.Fields.CONTENT, res.getContent());
         } else {
-            toSendBack.put("result", "error");
-            toSendBack.put("reason", "The requested file doesn't exist");
+            toSendBack = new ResponseCreator(ResponseCreator.ResponseType.ERROR);
+            if ((Integer) res.getContent() == -1) {
+                toSendBack.add(ResponseCreator.Fields.REASON, "The requested file doesn't exist");
+            } else {
+                throw new IOException("The server encountered an IO error while accessing " + request.params(ID));
+            }
         }
-
         return toSendBack;
     }
 }
