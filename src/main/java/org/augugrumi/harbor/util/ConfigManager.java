@@ -94,7 +94,7 @@ public class ConfigManager {
             } else {
                 this.YAML_STORAGE = System.getProperty("user.home") +
                         File.separator + ".harbor" +
-                        File.separator + "yaml";
+                        File.separator + "persistence";
 
             }
             LOG.debug("Environment variable" + HB_YAML_STORAGE + " set to: " + this.YAML_STORAGE);
