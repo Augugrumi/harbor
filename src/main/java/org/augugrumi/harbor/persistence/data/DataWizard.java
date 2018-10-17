@@ -31,4 +31,14 @@ public class DataWizard {
         VirtualNetworkFunction vnf = new VirtualNetworkFunction(id);
         return new Result<VirtualNetworkFunction>(vnf.isValid(), vnf);
     }
+
+    public static Result<Boolean> deleteNS(String id) {
+        // TODO update ref counting when deleting an ns
+        return new Result<>(false, false);
+    }
+
+    public static Result<Boolean> deleteVNF(String id) {
+        // TODO don't delete any vnf if it's referred at least one time
+        return new Result<>(false, false);
+    }
 }
