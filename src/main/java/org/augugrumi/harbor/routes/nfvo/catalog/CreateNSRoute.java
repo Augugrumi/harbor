@@ -2,9 +2,10 @@ package org.augugrumi.harbor.routes.nfvo.catalog;
 
 import org.augugrumi.harbor.persistence.Result;
 import org.augugrumi.harbor.persistence.data.Data;
-import org.augugrumi.harbor.persistence.data.DataCreator;
+import org.augugrumi.harbor.persistence.data.DataWizard;
 import org.augugrumi.harbor.persistence.data.NetworkService;
 import org.augugrumi.harbor.persistence.data.VirtualNetworkFunction;
+import org.augugrumi.harbor.routes.util.Errors;
 import org.augugrumi.harbor.routes.util.ParamConstants;
 import org.augugrumi.harbor.util.ConfigManager;
 import org.json.JSONArray;
@@ -51,16 +52,16 @@ public class CreateNSRoute implements Route {
                     listOfMissing.append(m);
                     listOfMissing.append(" ");
                 }
-                err.add(ResponseCreator.Fields.REASON, "The following VNF were not found: "
+                err.add(ResponseCreator.Fields.REASON, Errors.NO_VNF_FOUND
                         + listOfMissing.toString().trim());
                 return err;
             }
-            Result<NetworkService> ns = DataCreator.newNS(request.params(ParamConstants.ID), vnfs);
+            Result<NetworkService> ns = DataWizard.newNS(request.params(ParamConstants.ID), vnfs);
             if (ns.isSuccessful() && ns.getContent().isValid()) {
                 return new ResponseCreator(ResponseCreator.ResponseType.OK);
             } else {
                 return new ResponseCreator(ResponseCreator.ResponseType.ERROR)
-                        .add(ResponseCreator.Fields.REASON, "Impossible to add the object in the database");
+                        .add(ResponseCreator.Fields.REASON, Errors.DB_ADD);
             }
         } catch (JSONException e) {
             return new ResponseCreator(ResponseCreator.ResponseType.ERROR)

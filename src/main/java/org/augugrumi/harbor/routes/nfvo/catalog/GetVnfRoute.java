@@ -1,19 +1,14 @@
 package org.augugrumi.harbor.routes.nfvo.catalog;
 
-import org.augugrumi.harbor.persistence.Persistence;
-import org.augugrumi.harbor.persistence.PersistenceRetriever;
-import org.augugrumi.harbor.persistence.Query;
-import org.augugrumi.harbor.persistence.Result;
-import org.augugrumi.harbor.routes.util.RequestQuery;
+import org.augugrumi.harbor.persistence.data.VirtualNetworkFunction;
+import org.augugrumi.harbor.routes.util.Errors;
+import org.augugrumi.harbor.routes.util.ParamConstants;
 import org.augugrumi.harbor.util.ConfigManager;
 import org.slf4j.Logger;
 import routes.util.ResponseCreator;
 import spark.Request;
 import spark.Response;
 import spark.Route;
-
-import static org.augugrumi.harbor.routes.util.ErrorHandling.dbErr;
-import static org.augugrumi.harbor.routes.util.ParamConstants.ID;
 
 /**
  * This route returns the YAML definition of the given id
@@ -41,12 +36,21 @@ public class GetVnfRoute implements Route {
      *         "reason": "The requested file doesn't exist"
      *     }
      * </pre>
-     * @throws Exception when the handler fails to read the YAML file a 500 Internal server error gets returned
      */
     @Override
-    public Object handle(Request request, Response response) throws Exception {
+    public Object handle(Request request, Response response) {
 
         LOG.debug(this.getClass().getSimpleName() + " called");
+        VirtualNetworkFunction vnf = new VirtualNetworkFunction(request.params(ParamConstants.ID));
+        if (vnf.isValid()) {
+            return new ResponseCreator(ResponseCreator.ResponseType.OK).add(ResponseCreator.Fields.CONTENT, vnf.toJson());
+        } else {
+            return new ResponseCreator(ResponseCreator.ResponseType.ERROR)
+                    .add(ResponseCreator.Fields.REASON, Errors.NO_SUCH_ELEMENT);
+        }
+
+        /*
+
         final Persistence db = PersistenceRetriever.getVnfDb();
         final Query q = new RequestQuery(ID, request);
         ResponseCreator toSendBack;
@@ -63,6 +67,6 @@ public class GetVnfRoute implements Route {
                 return dbErr();
             }
         }
-        return toSendBack;
+        return toSendBack;*/
     }
 }

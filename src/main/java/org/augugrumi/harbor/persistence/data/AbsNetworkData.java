@@ -53,6 +53,8 @@ public abstract class AbsNetworkData implements Data {
         return update.isSuccessful() && update.getContent();
     }
 
+    abstract boolean saveAndClean();
+
     @Override
     public String getID() {
         return SELF.getID();
@@ -84,6 +86,20 @@ public abstract class AbsNetworkData implements Data {
             }
         } else {
             return new JSONObject().toString();
+        }
+    }
+
+    @Override
+    public JSONObject toJson() {
+        if (isValid()) {
+            Result<JSONObject> res = getDB().get(getMyQuery());
+            if (res.isSuccessful()) {
+                return res.getContent();
+            } else {
+                return new JSONObject();
+            }
+        } else {
+            return new JSONObject();
         }
     }
 }

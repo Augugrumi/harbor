@@ -1,5 +1,7 @@
 package org.augugrumi.harbor.persistence.data;
 
+import org.json.JSONObject;
+
 public interface Data {
 
     interface Fields {
@@ -11,4 +13,6 @@ public interface Data {
     boolean isValid();
 
     boolean makeValid();
+
+    JSONObject toJson();
 }

@@ -1,10 +1,9 @@
 package org.augugrumi.harbor.routes.nfvo.catalog;
 
-import org.augugrumi.harbor.persistence.Persistence;
-import org.augugrumi.harbor.persistence.PersistenceRetriever;
-import org.augugrumi.harbor.persistence.Query;
 import org.augugrumi.harbor.persistence.Result;
-import org.augugrumi.harbor.routes.util.RequestQuery;
+import org.augugrumi.harbor.persistence.data.DataWizard;
+import org.augugrumi.harbor.persistence.data.VirtualNetworkFunction;
+import org.augugrumi.harbor.routes.util.Errors;
 import org.augugrumi.harbor.util.ConfigManager;
 import org.slf4j.Logger;
 import routes.util.ResponseCreator;
@@ -12,7 +11,6 @@ import spark.Request;
 import spark.Response;
 import spark.Route;
 
-import static org.augugrumi.harbor.routes.util.ErrorHandling.dbErr;
 import static org.augugrumi.harbor.routes.util.ParamConstants.ID;
 
 /**
@@ -54,32 +52,17 @@ public class CreateVnfRoute implements Route {
      *         "reason": "Impossible to access the DB"
      *     }
      * </pre>
-     * @throws Exception when an internal error occurs
      */
     @Override
-    public Object handle(Request request, Response response) throws Exception {
+    public Object handle(Request request, Response response) {
 
         LOG.debug(this.getClass().getSimpleName() + " called");
-        final Persistence db = PersistenceRetriever.getVnfDb();
-        final Query q = new RequestQuery(ID, request);
-        ResponseCreator toSendBack;
-
-        Result<Boolean> exists = db.exists(q);
-        if (exists.isSuccessful()) {
-            if (exists.getContent()) {
-                toSendBack = new ResponseCreator(ResponseCreator.ResponseType.ERROR);
-                toSendBack.add(ResponseCreator.Fields.REASON, "A YAML with the same key already exists");
-            } else {
-                Result res = db.save(q);
-                if (res.isSuccessful()) {
-                    toSendBack = new ResponseCreator(ResponseCreator.ResponseType.OK);
-                } else {
-                    return dbErr();
-                }
-            }
+        Result<VirtualNetworkFunction> vnf = DataWizard.newVNF(request.params(ID), request.body());
+        if (vnf.isSuccessful() && vnf.getContent().isValid()) {
+            return new ResponseCreator(ResponseCreator.ResponseType.OK);
         } else {
-            return dbErr();
+            return new ResponseCreator(ResponseCreator.ResponseType.ERROR)
+                    .add(ResponseCreator.Fields.REASON, Errors.DB_ADD);
         }
-        return toSendBack;
     }
 }
