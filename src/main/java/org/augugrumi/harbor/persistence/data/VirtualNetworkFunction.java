@@ -1,5 +1,6 @@
 package org.augugrumi.harbor.persistence.data;
 
+import org.augugrumi.harbor.persistence.FieldPath;
 import org.augugrumi.harbor.persistence.PersistenceRetriever;
 import org.augugrumi.harbor.persistence.Result;
 import org.augugrumi.harbor.routes.util.exceptions.NoSuchNetworkComponentException;
@@ -27,6 +28,10 @@ public class VirtualNetworkFunction extends AbsNetworkData {
         } else {
             return "";
         }
+    }
+
+    public boolean setDefinition(String newDefinition) {
+        return genericSet(new FieldPath(Fields.DEFINITION), newDefinition);
     }
 
     public List<NetworkService> getNsClaims() throws NoSuchNetworkComponentException {

@@ -1,9 +1,11 @@
 package org.augugrumi.harbor.persistence.fs;
 
+import org.augugrumi.harbor.persistence.FieldPath;
 import org.augugrumi.harbor.persistence.Persistence;
 import org.augugrumi.harbor.persistence.Query;
 import org.augugrumi.harbor.persistence.Result;
 import org.augugrumi.harbor.persistence.exception.DbException;
+import org.augugrumi.harbor.persistence.query.SimpleQuery;
 import org.augugrumi.harbor.util.ConfigManager;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -11,6 +13,7 @@ import org.slf4j.Logger;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class FSPersistence implements Persistence {
 
@@ -84,6 +87,54 @@ public class FSPersistence implements Persistence {
             }
         }
         return new Result<>(true, res);
+    }
+
+    @Override
+    public Result<Boolean> update(Query q) throws DbException {
+
+        synchronized (this) {
+            Result<Boolean> deleteRes = delete(q);
+            if (deleteRes.isSuccessful()) {
+                if (deleteRes.getContent()) {
+                    Result<Void> saveRes = save(q);
+                    if (saveRes.isSuccessful()) {
+                        return new Result<>(true, true);
+                    } else {
+                        throw new DbException("Impossible to save data in the DB. The previous data have been lost");
+                    }
+                } else {
+                    return new Result<>(false);
+                }
+            } else {
+                throw new DbException("Impossible to delete data from the DB");
+            }
+        }
+    }
+
+    @Override
+    public Result<Boolean> update(SimpleQuery q, Map<FieldPath, Object> toUpdate) throws DbException {
+
+        synchronized (this) {
+            Result<JSONObject> dataToUpdate = get(q);
+            if (dataToUpdate.isSuccessful()) {
+                JSONObject payload = dataToUpdate.getContent();
+                // For every key in the map
+                for (final Map.Entry<FieldPath, Object> entry : toUpdate.entrySet()) {
+                    // Iterate over every step in the JSON path
+                    JSONObject path = payload;
+                    for (int i = 0; i < entry.getKey().size() - 2; i++) {
+                        final String key = entry.getKey().get(i);
+                        path = path.getJSONObject(key);
+                    }
+                    // Now path has the element we need to update
+                    final String lastKey = entry.getKey().get(entry.getKey().size() - 1);
+                    path.put(lastKey, entry.getValue().toString());
+                }
+                return new Result<Boolean>(true, true);
+            } else {
+                return new Result<Boolean>(false, false);
+            }
+        }
     }
 
     @Override

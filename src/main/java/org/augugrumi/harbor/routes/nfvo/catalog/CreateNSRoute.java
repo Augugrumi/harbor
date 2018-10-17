@@ -1,13 +1,11 @@
 package org.augugrumi.harbor.routes.nfvo.catalog;
 
-import org.augugrumi.harbor.persistence.Persistence;
-import org.augugrumi.harbor.persistence.PersistenceRetriever;
-import org.augugrumi.harbor.persistence.Query;
 import org.augugrumi.harbor.persistence.Result;
+import org.augugrumi.harbor.persistence.data.Data;
+import org.augugrumi.harbor.persistence.data.DataCreator;
 import org.augugrumi.harbor.persistence.data.NetworkService;
-import org.augugrumi.harbor.routes.nfvo.definition.NSConstants;
+import org.augugrumi.harbor.persistence.data.VirtualNetworkFunction;
 import org.augugrumi.harbor.routes.util.ParamConstants;
-import org.augugrumi.harbor.routes.util.RequestQuery;
 import org.augugrumi.harbor.util.ConfigManager;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -21,100 +19,52 @@ import spark.Route;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.augugrumi.harbor.routes.util.ErrorHandling.dbErr;
-
 public class CreateNSRoute implements Route {
 
     private final static Logger LOG = ConfigManager.getConfig().getApplicationLogger(CreateNSRoute.class);
 
     @Override
-    public Object handle(Request request, Response response) throws Exception {
+    public Object handle(Request request, Response response) {
 
         LOG.debug(this.getClass().getSimpleName() + " called");
-        NetworkService ns = new NetworkService(request.params(ParamConstants.ID));
+        try {
 
-        if (ns.isValid()) {
-            return new ResponseCreator(ResponseCreator.ResponseType.ERROR)
-                    .add(ResponseCreator.Fields.REASON, "NS already existing");
-        } else {
-            // TODO save the data in a particular way.
-        }
+            JSONObject body = new JSONObject(request.body());
+            JSONArray vnfsJson = body.getJSONArray(NetworkService.Fields.CHAIN);
+            List<VirtualNetworkFunction> vnfs = new ArrayList<>();
 
-
-        LOG.debug(this.getClass().getSimpleName() + " called");
-        final Persistence vnfDb = PersistenceRetriever.getVnfDb();
-        final Persistence nsDb = PersistenceRetriever.getNSDb();
-        final Query nsElement = new RequestQuery(ParamConstants.ID, request);
-        final Result<Boolean> query = nsDb.exists(nsElement);
-        if (query.isSuccessful()) {
-            if (!query.getContent()) {
-                try {
-                    JSONArray body = new JSONArray(request.body());
-                    List<Query> toJoin = new ArrayList<>();
-                    for (final Object o : body) {
-                        JSONObject element = (JSONObject) o;
-                        String id = element.getString(NSConstants.ID);
-                        Query q = new Query() {
-                            @Override
-                            public String getID() {
-                                return id;
-                            }
-
-                            @Override
-                            public String getContent() {
-                                return null;
-                            }
-                        };
-                        toJoin.add(q);
-                    }
-                    Result<List<Boolean>> vnfJoin = vnfDb.exists(toJoin);
-                    List<String> missing = new ArrayList<>();
-                    if (vnfJoin.isSuccessful()) {
-                        List<Boolean> content = vnfJoin.getContent();
-                        for (int i = 0; i < content.size(); i++) {
-                            if (!content.get(i)) {
-                                missing.add(body.getJSONObject(i).getString(NSConstants.ID));
-                            }
-                        }
-
-                        if (missing.size() != 0) {
-                            ResponseCreator err = new ResponseCreator(ResponseCreator.ResponseType.ERROR);
-                            StringBuilder listOfMissing = new StringBuilder();
-                            for (final String m : missing) {
-                                listOfMissing.append(m);
-                                listOfMissing.append(" ");
-                            }
-                            err.add(ResponseCreator.Fields.REASON, "The following VNF were not found: "
-                                    + listOfMissing.toString().trim());
-                            return err;
-                        } else {
-                            Result insert = nsDb.save(nsElement);
-                            if (insert.isSuccessful()) {
-                                return new ResponseCreator(ResponseCreator.ResponseType.OK);
-                            } else {
-                                return dbErr();
-                            }
-                        }
-                    } else {
-                        return dbErr();
-                    }
-                } catch (JSONException e) {
-                    ResponseCreator error = new ResponseCreator(ResponseCreator.ResponseType.ERROR);
-                    error.add(ResponseCreator.Fields.REASON, e.getMessage());
-                    return error;
-                } catch (ClassCastException e) {
-                    ResponseCreator error = new ResponseCreator(ResponseCreator.ResponseType.ERROR);
-                    error.add(ResponseCreator.Fields.REASON, "VNF element not well defined. Are you sure it" +
-                            " is a proper JSON object?");
-                    return error;
+            List<String> missing = new ArrayList<>();
+            // Checking VNF validity
+            for (Object vnfo : vnfsJson) {
+                JSONObject vnfJson = (JSONObject) vnfo;
+                VirtualNetworkFunction vnf = new VirtualNetworkFunction(vnfJson.getString(Data.Fields.ID));
+                if (!vnf.isValid()) {
+                    missing.add(vnf.getID());
+                } else {
+                    vnfs.add(vnf);
                 }
-            } else {
+            }
+            if (missing.size() != 0) {
                 ResponseCreator err = new ResponseCreator(ResponseCreator.ResponseType.ERROR);
-                err.add(ResponseCreator.Fields.REASON, "NS already existing");
+                StringBuilder listOfMissing = new StringBuilder();
+                for (final String m : missing) {
+                    listOfMissing.append(m);
+                    listOfMissing.append(" ");
+                }
+                err.add(ResponseCreator.Fields.REASON, "The following VNF were not found: "
+                        + listOfMissing.toString().trim());
                 return err;
             }
-        } else {
-            return dbErr();
+            Result<NetworkService> ns = DataCreator.newNS(request.params(ParamConstants.ID), vnfs);
+            if (ns.isSuccessful() && ns.getContent().isValid()) {
+                return new ResponseCreator(ResponseCreator.ResponseType.OK);
+            } else {
+                return new ResponseCreator(ResponseCreator.ResponseType.ERROR)
+                        .add(ResponseCreator.Fields.REASON, "Impossible to add the object in the database");
+            }
+        } catch (JSONException e) {
+            return new ResponseCreator(ResponseCreator.ResponseType.ERROR)
+                    .add(ResponseCreator.Fields.REASON, e.getMessage());
         }
     }
 }
