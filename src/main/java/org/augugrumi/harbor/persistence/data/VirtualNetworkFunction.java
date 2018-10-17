@@ -6,6 +6,7 @@ import org.augugrumi.harbor.persistence.Query;
 import org.augugrumi.harbor.persistence.Result;
 import org.augugrumi.harbor.routes.util.exceptions.NoSuchNetworkComponentException;
 import org.augugrumi.harbor.util.ConfigManager;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.yaml.snakeyaml.Yaml;
@@ -85,13 +86,37 @@ public class VirtualNetworkFunction extends AbsNetworkData {
         List<NetworkService> res = new ArrayList<>();
         Result<JSONObject> qRes = getDB().get(getMyQuery());
         if (qRes.isSuccessful()) {
-
-            List<String> services = (List) qRes.getContent().getJSONArray(Fields.NS_CLAIMS).toList();
+            JSONArray array = qRes.getContent().optJSONArray(Fields.NS_CLAIMS);
+            if (array == null) {
+                array = new JSONArray();
+            }
+            List<String> services = (List) array.toList();
             for (final String s : services) {
                 res.add(new NetworkService(s));
             }
         }
         return res;
+    }
+
+    public boolean addNSClaim(NetworkService ns) throws NoSuchNetworkComponentException {
+        checkValidityOrThrow();
+        synchronized (this) {
+            if (!ns.isValid()) {
+                throw new NoSuchNetworkComponentException("No NS with id " + ns.getID() + " found");
+            }
+
+            List<NetworkService> res = getNsClaims();
+            res.add(ns);
+            List<String> newIdList = new ArrayList<>();
+            for (final NetworkService n : res) {
+                newIdList.add(n.getID());
+            }
+            return genericSet(new FieldPath(Fields.NS_CLAIMS), newIdList);
+        }
+    }
+
+    public int getNsClaimsSize() {
+        return getNsClaims().size();
     }
 
     @Override

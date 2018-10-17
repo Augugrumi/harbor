@@ -1,12 +1,16 @@
 package org.augugrumi.harbor.persistence;
 
+import org.augugrumi.harbor.util.ConfigManager;
+import org.slf4j.Logger;
+
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
 public class FieldPath implements Iterable<String> {
 
-    private static final String DELIMITER = ".";
+    private static final Logger LOG = ConfigManager.getConfig().getApplicationLogger(FieldPath.class);
+    private static final String DELIMITER = "\\.";
 
     private final List<String> paths;
 

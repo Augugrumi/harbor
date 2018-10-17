@@ -120,16 +120,30 @@ public class FSPersistence implements Persistence {
                 JSONObject payload = dataToUpdate.getContent();
                 // For every key in the map
                 for (final Map.Entry<FieldPath, Object> entry : toUpdate.entrySet()) {
-                    // Iterate over every step in the JSON path
-                    JSONObject path = payload;
-                    for (int i = 0; i < entry.getKey().size() - 2; i++) {
-                        final String key = entry.getKey().get(i);
-                        path = path.getJSONObject(key);
+                    if (entry.getKey().size() > 0) {
+                        // Iterate over every step in the JSON path
+                        JSONObject path = payload;
+                        for (int i = 0; i < entry.getKey().size() - 2; i++) {
+                            final String key = entry.getKey().get(i);
+                            path = path.getJSONObject(key);
+                        }
+                        // Now path has the element we need to update
+                        final String lastKey = entry.getKey().get(entry.getKey().size() - 1);
+                        path.put(lastKey, entry.getValue().toString());
                     }
-                    // Now path has the element we need to update
-                    final String lastKey = entry.getKey().get(entry.getKey().size() - 1);
-                    path.put(lastKey, entry.getValue().toString());
                 }
+                save(new Query() {
+                    @Override
+                    public String getID() {
+                        return q.getID();
+                    }
+
+                    @Override
+                    public String getContent() {
+                        String res = payload.toString();
+                        return res.replaceAll("\\\\", "");
+                    }
+                });
                 return new Result<Boolean>(true, true);
             } else {
                 return new Result<Boolean>(false, false);

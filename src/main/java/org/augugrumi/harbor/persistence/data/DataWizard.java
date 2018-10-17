@@ -2,17 +2,30 @@ package org.augugrumi.harbor.persistence.data;
 
 import org.augugrumi.harbor.persistence.Result;
 import org.augugrumi.harbor.persistence.query.SimpleQuery;
+import org.augugrumi.harbor.util.ConfigManager;
+import org.slf4j.Logger;
 
 import java.util.List;
 
 public class DataWizard {
+
+    private final static Logger LOG = ConfigManager.getConfig().getApplicationLogger(DataWizard.class);
 
     private DataWizard() {
     }
 
     public static Result<NetworkService> newNS(String id, List<VirtualNetworkFunction> vnfs) {
         NetworkService toSave = new NetworkService(id, vnfs);
-        return new Result<>(toSave.saveAndClean(), toSave);
+        boolean isSaved = toSave.saveAndClean();
+        if (isSaved && toSave.isValid()) {
+            vnfs.forEach(item -> {
+                boolean res = item.addNSClaim(toSave);
+                if (!res) {
+                    LOG.warn("Impossible to update entry for VNF: " + item.getID());
+                }
+            });
+        }
+        return new Result<>(isSaved, toSave);
     }
 
     public static Result<VirtualNetworkFunction> newVNF(String id, String content) {
