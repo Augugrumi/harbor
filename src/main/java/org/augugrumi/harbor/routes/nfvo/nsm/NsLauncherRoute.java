@@ -41,7 +41,10 @@ public class NsLauncherRoute implements Route {
                 final K8sAPI k8s = K8sRetriever.getK8sAPI();
                 k8s.createFromYaml(FileUtils.createTmpFile("hrbr", ".yaml",
                         vnf.getDefinition()).toURI().toURL(),
-                        res -> res.getAttachment().toString()); // TODO should check if the deployment it's ok
+                        res -> {
+                            LOG.info(res.getAttachment().toString());
+                            return res.getAttachment().toString();
+                        }); // TODO should check if the deployment it's ok
             }
             final int spi = ns.getSPI();
             final InetAddress[] roulette = InetAddress.getAllByName(ConfigManager.getConfig().getRouletteUrl());
