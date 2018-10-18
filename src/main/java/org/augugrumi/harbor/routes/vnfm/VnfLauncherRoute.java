@@ -1,7 +1,7 @@
 package org.augugrumi.harbor.routes.vnfm;
 
 import org.augugrumi.harbor.k8s.K8sAPI;
-import org.augugrumi.harbor.k8s.K8sFactory;
+import org.augugrumi.harbor.k8s.K8sRetriever;
 import org.augugrumi.harbor.persistence.Persistence;
 import org.augugrumi.harbor.persistence.PersistenceRetriever;
 import org.augugrumi.harbor.persistence.Query;
@@ -51,7 +51,7 @@ public class VnfLauncherRoute implements Route {
         LOG.debug(this.getClass().getSimpleName() + " called");
         final Persistence db = PersistenceRetriever.getVnfDb();
         final Query q = new RequestQuery(ID, request);
-        final K8sAPI api = K8sFactory.getCliAPI();
+        final K8sAPI api = K8sRetriever.getK8sAPI();
 
         try {
             VirtualNetworkFunction vnf = new VirtualNetworkFunction(request.params(ID));
