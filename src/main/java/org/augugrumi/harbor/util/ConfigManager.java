@@ -41,24 +41,30 @@ public class ConfigManager {
     public static class Config {
 
         // External env variables
-        final private String K8S_API_ENDPOINT = "KUBERNETES_SERVICE_HOST";
-        final private String K8S_API_PORT = "KUBERNETES_SERVICE_PORT_HTTPS";
+        final private static String K8S_API_ENDPOINT = "KUBERNETES_SERVICE_HOST";
+        final private static String K8S_API_PORT = "KUBERNETES_SERVICE_PORT_HTTPS";
         // End external env variables
 
         // Init config keys
-        final private String HB_PORT = "HARBOR_PORT";
-        final private String HB_API = "HARBOR_API_CONFIG";
-        final private String HB_KUBERNETES = "HARBOR_KUBERNETES_URL";
-        final private String HB_YAML_STORAGE = "HARBOR_YAML_STORAGE_PATH";
+        final private static String HB_PORT = "HARBOR_PORT";
+        final private static String HB_API = "HARBOR_API_CONFIG";
+        final private static String HB_KUBERNETES = "HARBOR_KUBERNETES_URL";
+        final private static String HB_STORAGE = "HARBOR_STORAGE_PATH";
+        final private static String HB_ROULETTE = "HARBOR_ROULETTE_URL";
         // End config keys
+
+        // Default variables
+        final private static String LOCALHOST = "localhost";
+        final private static String HB_HOME = File.separator + ".harbor" + File.separator + "persistence";
+        // End default variables
 
         final private static Logger LOG = LoggerFactory.getLogger(Config.class);
 
-        private int PORT;
-        private String API_CONFIG_PATH;
-        private String KUBERNETES_URL;
-        private String KUBERNETES_PORT;
-        private String YAML_STORAGE;
+        private int port;
+        private URL rouletteUrl;
+        private URL kubernetesUrl;
+        private String apiConfigPath;
+        private String storageFolder;
 
 
         /**
@@ -68,36 +74,42 @@ public class ConfigManager {
 
             LOG.debug("Environment variable " + HB_PORT + " set to: " + System.getenv(HB_PORT));
             if (System.getenv(HB_PORT) != null) {
-                this.PORT = Integer.parseInt(System.getenv(HB_PORT));
+                this.port = Integer.parseInt(System.getenv(HB_PORT));
             } else {
-                this.PORT = 80;
+                this.port = 80;
             }
-            LOG.info("Set running port to: " + PORT);
+            LOG.info("Set running port to: " + port);
 
             LOG.debug("Environment variable " + HB_API + " set to: " + System.getenv(HB_API));
-            this.API_CONFIG_PATH = System.getenv(HB_API);
+            this.apiConfigPath = System.getenv(HB_API);
 
-            if (System.getenv(HB_KUBERNETES) != null) {
-                this.KUBERNETES_URL = System.getenv(HB_KUBERNETES);
-            } else if (System.getenv(K8S_API_ENDPOINT) != null) {
-                this.KUBERNETES_URL = System.getenv(K8S_API_ENDPOINT);
-            } else {
-                this.KUBERNETES_URL = "localhost";
+            try {
+                if (System.getenv(HB_KUBERNETES) != null) {
+                    this.kubernetesUrl = new URL(System.getenv(HB_KUBERNETES));
+                } else if (System.getenv(K8S_API_ENDPOINT) != null) {
+                    this.kubernetesUrl = new URL(System.getenv(K8S_API_ENDPOINT));
+                } else {
+                    this.kubernetesUrl = new URL(System.getenv(LOCALHOST));
+                }
+                LOG.debug("Environment variable" + HB_KUBERNETES + " set to: " + this.kubernetesUrl);
+
+                if (System.getenv(HB_ROULETTE) != null) {
+                    this.rouletteUrl = new URL(System.getenv(HB_ROULETTE));
+                } else {
+                    this.rouletteUrl = new URL(System.getenv(LOCALHOST));
+                }
+                LOG.debug("Environment variable" + HB_ROULETTE + " set to: " + this.rouletteUrl);
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+                System.exit(1);
             }
-            LOG.debug("Environment variable" + HB_KUBERNETES + " set to: " + this.KUBERNETES_URL);
 
-            this.KUBERNETES_PORT = System.getenv(K8S_API_PORT);
-            LOG.debug("Environment variable" + K8S_API_PORT + " set to: " + this.KUBERNETES_PORT);
-
-            if (System.getenv(HB_YAML_STORAGE) != null) {
-                this.YAML_STORAGE = System.getenv(HB_YAML_STORAGE);
+            if (System.getenv(HB_STORAGE) != null) {
+                this.storageFolder = System.getenv(HB_STORAGE);
             } else {
-                this.YAML_STORAGE = System.getProperty("user.home") +
-                        File.separator + ".harbor" +
-                        File.separator + "persistence";
-
+                this.storageFolder = System.getProperty("user.home") + HB_HOME;
             }
-            LOG.debug("Environment variable" + HB_YAML_STORAGE + " set to: " + this.YAML_STORAGE);
+            LOG.debug("Environment variable" + HB_STORAGE + " set to: " + this.storageFolder);
         }
 
         /**
@@ -105,7 +117,7 @@ public class ConfigManager {
          * @return it returns the port in with Sparks Java is running
          */
         public int getPort () {
-            return PORT;
+            return port;
         }
 
         /**
@@ -122,7 +134,7 @@ public class ConfigManager {
          * @return a filepath to the API config JSON
          */
         public String getAPIConfig () {
-            return API_CONFIG_PATH;
+            return apiConfigPath;
         }
 
         /**
@@ -131,28 +143,36 @@ public class ConfigManager {
          * @return an URL to the kubernetes-api container
          */
         public String getFullKubernetesAddress() {
-
-            String toAttach = this.KUBERNETES_PORT == null ? "" : ":" + this.KUBERNETES_PORT;
-            String prot = "443".equals(this.KUBERNETES_PORT) || "8443".equals(this.KUBERNETES_PORT) ? "https" : "http";
-
-            return prot + "://" + this.KUBERNETES_URL + toAttach;
+            return kubernetesUrl.toString();
         }
 
         /**
          * Getter method to retrieve the YAML storage folder path
          * @return return the YAML folder path where YAML configurations will be saved
          */
-        public String getYamlStorageFolder() {
-            return this.YAML_STORAGE;
+        public String getStorageFolder() {
+            return this.storageFolder;
         }
 
+        public String getRouletteUrl() {
+            return rouletteUrl.toString();
+        }
+
+        /**
+         * Get if running inside the kubernetes environment or not
+         *
+         * @return True if running inside a Kubernetes cluster, false otherwise
+         */
+        public boolean isRunningInKubernetes() {
+            return System.getenv(K8S_API_ENDPOINT) != null;
+        }
 
         /**
          * Setter method to change port number
          * @param port a new port destination
          */
         void setPort(int port) {
-            this.PORT = port;
+            this.port = port;
         }
 
         /**
@@ -160,7 +180,7 @@ public class ConfigManager {
          * @param APIPath the new API filepath
          */
         void setAPIConfig(String APIPath) {
-            this.API_CONFIG_PATH = APIPath;
+            this.apiConfigPath = APIPath;
         }
 
         /**
@@ -168,29 +188,20 @@ public class ConfigManager {
          * @param k8sAddress a new URL to the kubernetes-api container
          * @throws MalformedURLException if the given url is not valid
          */
-        void setKubernetesAddress(String k8sAddress) throws MalformedURLException {
-
-            URL newURL = new URL(k8sAddress);
-
-            this.KUBERNETES_URL = newURL.getHost();
-            this.KUBERNETES_PORT = newURL.getPort() == -1 ?
-                    String.valueOf(newURL.getDefaultPort()) : String.valueOf(newURL.getPort());
+        void setKubernetesUrl(String k8sAddress) throws MalformedURLException {
+            kubernetesUrl = new URL(k8sAddress);
         }
 
         /**
          * Setter method to change YAML storage home
          * @param newPath a new directory to store YAML configuration files
          */
-        void setYAMLHome(String newPath) {
-            this.YAML_STORAGE = newPath;
+        void setStorageFolder(String newPath) {
+            this.storageFolder = newPath;
         }
 
-        /**
-         * Get if running inside the kubernetes environment or not
-         * @return True if running inside a Kubernetes cluster, false otherwise
-         */
-        public boolean isRunningInKubernetes() {
-            return System.getenv(K8S_API_ENDPOINT) != null;
+        void setRouletteUrl(String rouletteAddress) throws MalformedURLException {
+            rouletteUrl = new URL(rouletteAddress);
         }
     }
 

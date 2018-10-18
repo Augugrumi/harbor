@@ -22,7 +22,7 @@ public class FSPersistence implements Persistence {
     private final File home;
 
     public FSPersistence(String folderName) {
-        home = new File(ConfigManager.getConfig().getYamlStorageFolder() + File.separator + folderName);
+        home = new File(ConfigManager.getConfig().getStorageFolder() + File.separator + folderName);
         if (!home.exists()) {
             if (!home.mkdirs()) {
                 throw new RuntimeException("Impossible to create " + folderName + " home. Check your writing " +
