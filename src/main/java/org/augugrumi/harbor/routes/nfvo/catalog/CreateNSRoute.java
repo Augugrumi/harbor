@@ -34,27 +34,11 @@ public class CreateNSRoute implements Route {
             JSONArray vnfsJson = body.getJSONArray(NetworkService.Fields.CHAIN);
             List<VirtualNetworkFunction> vnfs = new ArrayList<>();
 
-            List<String> missing = new ArrayList<>();
             // Checking VNF validity
             for (Object vnfo : vnfsJson) {
                 JSONObject vnfJson = (JSONObject) vnfo;
                 VirtualNetworkFunction vnf = new VirtualNetworkFunction(vnfJson.getString(Data.Fields.ID));
-                if (!vnf.isValid()) {
-                    missing.add(vnf.getID());
-                } else {
-                    vnfs.add(vnf);
-                }
-            }
-            if (missing.size() != 0) {
-                ResponseCreator err = new ResponseCreator(ResponseCreator.ResponseType.ERROR);
-                StringBuilder listOfMissing = new StringBuilder();
-                for (final String m : missing) {
-                    listOfMissing.append(m);
-                    listOfMissing.append(" ");
-                }
-                err.add(ResponseCreator.Fields.REASON, Errors.NO_VNF_FOUND
-                        + listOfMissing.toString().trim());
-                return err;
+                vnfs.add(vnf);
             }
             Result<NetworkService> ns = DataWizard.newNS(request.params(ParamConstants.ID), vnfs);
             if (ns.isSuccessful() && ns.getContent().isValid()) {

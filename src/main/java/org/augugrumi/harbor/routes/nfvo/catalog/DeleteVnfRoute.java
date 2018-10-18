@@ -1,19 +1,14 @@
 package org.augugrumi.harbor.routes.nfvo.catalog;
 
-import org.augugrumi.harbor.persistence.Persistence;
-import org.augugrumi.harbor.persistence.PersistenceRetriever;
-import org.augugrumi.harbor.persistence.Query;
-import org.augugrumi.harbor.persistence.Result;
-import org.augugrumi.harbor.routes.util.RequestQuery;
+import org.augugrumi.harbor.persistence.data.DataWizard;
+import org.augugrumi.harbor.routes.util.Errors;
+import org.augugrumi.harbor.routes.util.ParamConstants;
 import org.augugrumi.harbor.util.ConfigManager;
 import org.slf4j.Logger;
 import routes.util.ResponseCreator;
 import spark.Request;
 import spark.Response;
 import spark.Route;
-
-import static org.augugrumi.harbor.routes.util.ErrorHandling.dbErr;
-import static org.augugrumi.harbor.routes.util.ParamConstants.ID;
 
 /**
  * Deletes a YAML configuration given the right id. The operation fails if a bogus id is provided, or if the backend
@@ -59,27 +54,11 @@ public class DeleteVnfRoute implements Route {
     public Object handle(Request request, Response response) {
 
         LOG.debug(this.getClass().getSimpleName() + " called");
-        final Persistence db = PersistenceRetriever.getVnfDb();
-        final Query q = new RequestQuery(ID, request);
-        ResponseCreator toSendBack;
-
-        Result<Boolean> exist = db.exists(q);
-        if (exist.isSuccessful()) {
-            if (exist.getContent()) {
-                final Result<Boolean> res = db.delete(q);
-                if (res.isSuccessful() && res.getContent()) {
-                    toSendBack = new ResponseCreator(ResponseCreator.ResponseType.OK);
-                } else {
-                    toSendBack = new ResponseCreator(ResponseCreator.ResponseType.ERROR)
-                            .add(ResponseCreator.Fields.REASON, "Failed to delete the file");
-                }
-            } else {
-                toSendBack = new ResponseCreator(ResponseCreator.ResponseType.ERROR)
-                        .add(ResponseCreator.Fields.REASON, "The requested YAML doesn't exist");
-            }
+        if (DataWizard.deleteVNF(request.params(ParamConstants.ID))) {
+            return new ResponseCreator(ResponseCreator.ResponseType.OK);
         } else {
-            return dbErr();
+            return new ResponseCreator(ResponseCreator.ResponseType.ERROR)
+                    .add(ResponseCreator.Fields.REASON, Errors.DB_REMOVE);
         }
-        return toSendBack;
     }
 }

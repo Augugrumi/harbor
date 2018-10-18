@@ -16,6 +16,11 @@ public class DataWizard {
 
     public static Result<NetworkService> newNS(String id, List<VirtualNetworkFunction> vnfs) {
         NetworkService toSave = new NetworkService(id, vnfs);
+        for (final VirtualNetworkFunction vnf : vnfs) {
+            if (!vnf.isValid()) {
+                return new Result<>(false, toSave);
+            }
+        }
         boolean isSaved = toSave.saveAndClean();
         if (isSaved && toSave.isValid()) {
             vnfs.forEach(item -> {
@@ -45,13 +50,26 @@ public class DataWizard {
         return new Result<VirtualNetworkFunction>(vnf.isValid(), vnf);
     }
 
-    public static Result<Boolean> deleteNS(String id) {
-        // TODO update ref counting when deleting an ns
-        return new Result<>(false, false);
+    public static boolean deleteNS(String id) {
+        NetworkService toDelete = new NetworkService(id);
+        if (toDelete.isValid()) {
+            List<VirtualNetworkFunction> vnfs = toDelete.getChain();
+            LOG.debug("Chain size: " + vnfs.size());
+            for (final VirtualNetworkFunction vnf : vnfs) {
+                if (vnf.isValid()) {
+                    LOG.debug("Vnf " + vnf.getID() + " is valid, deleting myself from its list");
+                    vnf.deleteNSClaim(toDelete);
+                }
+            }
+        }
+        return toDelete.makeInValid();
     }
 
-    public static Result<Boolean> deleteVNF(String id) {
-        // TODO don't delete any vnf if it's referred at least one time
-        return new Result<>(false, false);
+    public static boolean deleteVNF(String id) {
+        VirtualNetworkFunction toDelete = new VirtualNetworkFunction(id);
+        if (toDelete.isValid() && toDelete.getNsClaimsSize() != 0) {
+            return false;
+        }
+        return toDelete.makeInValid();
     }
 }

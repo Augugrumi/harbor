@@ -76,6 +76,16 @@ public abstract class AbsNetworkData implements Data {
     }
 
     @Override
+    public boolean makeInValid() {
+        if (!isValid()) {
+            return true;
+        }
+
+        Result<Boolean> qRes = getDB().delete(getMyQuery());
+        return qRes.isSuccessful() && qRes.getContent();
+    }
+
+    @Override
     public String toString() {
         if (isValid()) {
             Result<JSONObject> res = getDB().get(getMyQuery());
@@ -101,5 +111,20 @@ public abstract class AbsNetworkData implements Data {
         } else {
             return new JSONObject();
         }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null) {
+            return false;
+        }
+        if (o == this) {
+            return true;
+        }
+        if (!(o instanceof AbsNetworkData)) {
+            return false;
+        }
+        AbsNetworkData other = (AbsNetworkData) o;
+        return other.getID().equals(getID());
     }
 }

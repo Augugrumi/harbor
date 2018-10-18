@@ -1,5 +1,7 @@
 package org.augugrumi.harbor.routes.nfvo.catalog;
 
+import org.augugrumi.harbor.persistence.Result;
+import org.augugrumi.harbor.persistence.data.DataWizard;
 import org.augugrumi.harbor.persistence.data.VirtualNetworkFunction;
 import org.augugrumi.harbor.routes.util.Errors;
 import org.augugrumi.harbor.routes.util.ParamConstants;
@@ -41,32 +43,13 @@ public class GetVnfRoute implements Route {
     public Object handle(Request request, Response response) {
 
         LOG.debug(this.getClass().getSimpleName() + " called");
-        VirtualNetworkFunction vnf = new VirtualNetworkFunction(request.params(ParamConstants.ID));
-        if (vnf.isValid()) {
-            return new ResponseCreator(ResponseCreator.ResponseType.OK).add(ResponseCreator.Fields.CONTENT, vnf.toJson());
+        Result<VirtualNetworkFunction> vnfRes = DataWizard.getVNF(request.params(ParamConstants.ID));
+        if (vnfRes.isSuccessful()) {
+            return new ResponseCreator(ResponseCreator.ResponseType.OK)
+                    .add(ResponseCreator.Fields.CONTENT, vnfRes.getContent().toJson());
         } else {
             return new ResponseCreator(ResponseCreator.ResponseType.ERROR)
                     .add(ResponseCreator.Fields.REASON, Errors.NO_SUCH_ELEMENT);
         }
-
-        /*
-
-        final Persistence db = PersistenceRetriever.getVnfDb();
-        final Query q = new RequestQuery(ID, request);
-        ResponseCreator toSendBack;
-
-        Result res = db.get(q);
-        if (res.isSuccessful()) {
-            toSendBack = new ResponseCreator(ResponseCreator.ResponseType.OK);
-            toSendBack.add(ResponseCreator.Fields.CONTENT, res.getContent());
-        } else {
-            toSendBack = new ResponseCreator(ResponseCreator.ResponseType.ERROR);
-            if ((Integer) res.getContent() == -1) {
-                toSendBack.add(ResponseCreator.Fields.REASON, "The requested file doesn't exist");
-            } else {
-                return dbErr();
-            }
-        }
-        return toSendBack;*/
     }
 }

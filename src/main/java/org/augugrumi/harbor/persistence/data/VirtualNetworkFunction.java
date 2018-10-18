@@ -113,6 +113,23 @@ public class VirtualNetworkFunction extends AbsNetworkData {
         }
     }
 
+    public boolean deleteNSClaim(NetworkService ns) throws NoSuchNetworkComponentException {
+        checkValidityOrThrow();
+        synchronized (this) {
+            if (!ns.isValid()) {
+                throw new NoSuchNetworkComponentException("No NS with id " + ns.getID() + " found");
+            }
+
+            List<NetworkService> res = getNsClaims();
+            res.remove(ns);
+            List<String> newIdList = new ArrayList<>();
+            for (final NetworkService n : res) {
+                newIdList.add(n.getID());
+            }
+            return genericSet(new FieldPath(Fields.NS_CLAIMS), newIdList);
+        }
+    }
+
     public int getNsClaimsSize() {
         return getNsClaims().size();
     }

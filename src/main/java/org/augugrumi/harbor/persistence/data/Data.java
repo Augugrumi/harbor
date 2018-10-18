@@ -14,5 +14,10 @@ public interface Data {
 
     boolean makeValid();
 
+    boolean makeInValid();
+
     JSONObject toJson();
+
+    @Override
+    boolean equals(Object o);
 }
