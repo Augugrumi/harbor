@@ -33,7 +33,7 @@ public class VirtualNetworkFunction extends AbsNetworkData {
     }
 
     @Override
-    boolean saveAndClean() {
+    synchronized boolean saveAndClean() {
         if (isValid()) {
             return false;
         }

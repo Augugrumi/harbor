@@ -20,6 +20,7 @@ public class NetworkService extends AbsNetworkData {
 
     public interface Fields extends Data.Fields {
         String CHAIN = "ns";
+        String CHAIN_ID = "spi";
     }
 
     public NetworkService(String id) {
@@ -36,10 +37,11 @@ public class NetworkService extends AbsNetworkData {
     }
 
     @Override
-    boolean saveAndClean() {
+    synchronized boolean saveAndClean() {
         if (isValid()) {
             return false;
         }
+        // Write down chain
         JSONObject myselfJson = new JSONObject();
         JSONArray vnfsJson = new JSONArray();
         if (vnfs != null && vnfs.size() != 0) {
@@ -48,6 +50,21 @@ public class NetworkService extends AbsNetworkData {
             }
         }
         myselfJson.put(Fields.CHAIN, vnfsJson);
+
+        // Write down chain ID
+        int currentMaxSPI = 0;
+        Result<List<JSONObject>> jsonNSRes = getDB().get();
+        if (jsonNSRes.isSuccessful()) {
+            for (JSONObject ns : jsonNSRes.getContent()) {
+                int current = ns.optInt(Fields.CHAIN_ID, -1);
+                if (current > currentMaxSPI) {
+                    currentMaxSPI = current;
+                }
+            }
+        }
+        // My ID = currentMaxSPI + 1 ;)
+        myselfJson.put(Fields.CHAIN_ID, currentMaxSPI + 1);
+
         Query myselfQuery = new Query() {
             @Override
             public String getID() {
@@ -66,6 +83,19 @@ public class NetworkService extends AbsNetworkData {
         return queryRes.isSuccessful();
     }
 
+    public int getSPI() {
+        checkValidityOrThrow();
+        Result<JSONObject> qRes = getDB().get(getMyQuery());
+        if (qRes.isSuccessful()) {
+            return qRes.getContent().optInt(Fields.CHAIN_ID, -1);
+        }
+        return -2;
+    }
+
+    public boolean setSPI(String spi) {
+        return genericSet(new FieldPath(Fields.CHAIN_ID), spi);
+    }
+
     public List<VirtualNetworkFunction> getChain() {
         checkValidityOrThrow();
         Result<JSONObject> qRes = getDB().get(getMyQuery());
@@ -81,14 +111,21 @@ public class NetworkService extends AbsNetworkData {
         return new ArrayList<>();
     }
 
-    // FIXME we should accept a list of VNFs instead!
-    public boolean setChain(JSONArray chain) {
-        return genericSet(new FieldPath(Fields.CHAIN), chain);
+    public boolean setChain(List<VirtualNetworkFunction> vnfs) {
+
+        JSONArray chainsId = new JSONArray();
+        for (final VirtualNetworkFunction vnf : vnfs) {
+            chainsId.put(vnf.getID());
+        }
+
+        return genericSet(new FieldPath(Fields.CHAIN), chainsId);
     }
 
     public boolean updateChain(int beginning, int end, NetworkService toUpdate) {
         checkValidityOrThrow();
         // Check if the current boundaries are inside the ns length
+        if (beginning <= end && end <= getChain().size()) {
+        }
         return false;
     }
 
