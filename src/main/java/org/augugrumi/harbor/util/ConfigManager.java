@@ -89,14 +89,14 @@ public class ConfigManager {
                 } else if (System.getenv(K8S_API_ENDPOINT) != null) {
                     this.kubernetesUrl = new URL(System.getenv(K8S_API_ENDPOINT));
                 } else {
-                    this.kubernetesUrl = new URL(System.getenv(LOCALHOST));
+                    this.kubernetesUrl = new URL(LOCALHOST);
                 }
                 LOG.debug("Environment variable" + HB_KUBERNETES + " set to: " + this.kubernetesUrl);
 
                 if (System.getenv(HB_ROULETTE) != null) {
                     this.rouletteUrl = new URL(System.getenv(HB_ROULETTE));
                 } else {
-                    this.rouletteUrl = new URL(System.getenv(LOCALHOST));
+                    this.rouletteUrl = new URL(LOCALHOST);
                 }
                 LOG.debug("Environment variable" + HB_ROULETTE + " set to: " + this.rouletteUrl);
             } catch (MalformedURLException e) {
