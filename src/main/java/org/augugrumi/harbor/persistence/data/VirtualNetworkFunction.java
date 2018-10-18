@@ -15,6 +15,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static org.augugrumi.harbor.util.ObjectConverter.json2yaml;
+
 public class VirtualNetworkFunction extends AbsNetworkData {
 
     private final static Logger LOG = ConfigManager.getConfig().getApplicationLogger(VirtualNetworkFunction.class);
@@ -57,21 +59,21 @@ public class VirtualNetworkFunction extends AbsNetworkData {
         return queryRes.isSuccessful();
     }
 
-    public VirtualNetworkFunction(String id) {
-        super(id, PersistenceRetriever.getVnfDb());
-    }
-
     VirtualNetworkFunction(String id, String definition) {
         super(id, PersistenceRetriever.getVnfDb());
 
         vnfDefinition = definition;
     }
 
+    public VirtualNetworkFunction(String id) {
+        super(id, PersistenceRetriever.getVnfDb());
+    }
+
     public String getDefinition() throws NoSuchNetworkComponentException {
         checkValidityOrThrow();
         Result<JSONObject> res = getDB().get(getMyQuery());
         if (res.isSuccessful()) {
-            return getDB().get(getMyQuery()).getContent().getString(Fields.DEFINITION);
+            return json2yaml(res.getContent(), Fields.DEFINITION);
         } else {
             return "";
         }
@@ -137,11 +139,7 @@ public class VirtualNetworkFunction extends AbsNetworkData {
     @Override
     public String toString() {
         JSONObject converted = new JSONObject(super.toString());
-        LOG.info(converted.toString());
-        Yaml yaml = new Yaml();
-        Map<String, Object> yamlMap = yaml.load(converted.getJSONObject(Fields.DEFINITION).toString());
-        String convert = yaml.dump(yamlMap);
-        LOG.info(convert);
+        String convert = json2yaml(converted, Fields.DEFINITION);
         converted.put(Fields.DEFINITION, convert);
         return converted.toString();
     }
@@ -149,10 +147,7 @@ public class VirtualNetworkFunction extends AbsNetworkData {
     @Override
     public JSONObject toJson() {
         JSONObject json = super.toJson();
-
-        Yaml yaml = new Yaml();
-        Map<String, Object> yamlMap = yaml.load(json.getJSONObject(Fields.DEFINITION).toString());
-        String convert = yaml.dump(yamlMap);
+        String convert = json2yaml(json, Fields.DEFINITION);
         json.put(Fields.DEFINITION, convert);
         return json;
     }
