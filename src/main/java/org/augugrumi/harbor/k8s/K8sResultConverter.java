@@ -1,4 +1,4 @@
-package k8s;
+package org.augugrumi.harbor.k8s;
 
 /**
  * Output converter. It allows to convert the output coming from a library or API call into something else, i.e. a

@@ -1,4 +1,4 @@
-package k8s.exceptions;
+package org.augugrumi.harbor.k8s.exceptions;
 
 /**
  * Exception specifying and error regarding the initialization of a Kubernetes resources, such as login, kubernetes

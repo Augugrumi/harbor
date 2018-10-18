@@ -1,6 +1,6 @@
-package k8s;
+package org.augugrumi.harbor.k8s;
 
-import k8s.exceptions.K8sException;
+import org.augugrumi.harbor.k8s.exceptions.K8sException;
 
 import java.io.IOException;
 import java.net.URL;
@@ -21,7 +21,7 @@ public interface K8sAPI {
      * what K8sResultConverter.convert() returns.
      * @throws K8sException exception thrown if an operation with Kubernetes (e.g. resource creation, missing
      *                      permissions, etc) fails for whatever reason
-     * @throws IOException  exception thrown if an operation with the YAML resource such as accessing or reading it fails
+     * @throws IOException exception thrown if an operation with the YAML resource such as accessing or reading it fails
      */
     Object createFromYaml(URL pathToFile, K8sResultConverter converter) throws K8sException, IOException;
 

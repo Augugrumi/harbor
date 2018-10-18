@@ -1,9 +1,9 @@
-package k8s.cli;
+package org.augugrumi.harbor.k8s.cli;
 
-import k8s.K8sAPI;
-import k8s.K8sResultConverter;
-import k8s.exceptions.K8sException;
-import k8s.exceptions.K8sInitFailureException;
+import org.augugrumi.harbor.k8s.K8sAPI;
+import org.augugrumi.harbor.k8s.K8sResultConverter;
+import org.augugrumi.harbor.k8s.exceptions.K8sException;
+import org.augugrumi.harbor.k8s.exceptions.K8sInitFailureException;
 import org.augugrumi.harbor.util.CommandExec;
 import org.augugrumi.harbor.util.ConfigManager;
 import org.json.JSONArray;

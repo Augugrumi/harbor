@@ -1,7 +1,7 @@
 package org.augugrumi.harbor.routes.vnfm;
 
-import k8s.K8sAPI;
-import k8s.K8sFactory;
+import org.augugrumi.harbor.k8s.K8sAPI;
+import org.augugrumi.harbor.k8s.K8sFactory;
 import org.augugrumi.harbor.persistence.Persistence;
 import org.augugrumi.harbor.persistence.PersistenceRetriever;
 import org.augugrumi.harbor.persistence.Query;
