@@ -43,7 +43,7 @@ public class K8sCli implements K8sAPI {
      */
     public K8sCli() throws K8sInitFailureException {
 
-        // TODO check that K8s cluster runs 1.11.x!
+        // TODO check that K8s cluster runs 1.12.x!
         try {
             // Check if kubelet is up and Kubectl exists
             List<Process> kubelet = new LinkedList<>();
