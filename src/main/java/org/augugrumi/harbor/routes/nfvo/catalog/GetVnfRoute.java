@@ -35,7 +35,7 @@ public class GetVnfRoute implements Route {
      * <pre>
      *     {
      *         "result": "error",
-     *         "reason": "The requested file doesn't exist"
+     *         "reason": "The requested element was not found"
      *     }
      * </pre>
      */

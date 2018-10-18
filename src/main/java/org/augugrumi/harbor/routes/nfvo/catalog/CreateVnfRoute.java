@@ -32,26 +32,11 @@ public class CreateVnfRoute implements Route {
      *         "result": "ok"
      *     }
      * </pre>
-     * when the operation is successful, otherwise if the id is already in use it returns: <pre>
+     * when the operation is successful, otherwise it returns: <pre>
      *     {
      *         "result": "error",
-     *         "reason": "A YAML with the same key already exists"
+     *         "reason": "Impossible to add the object in the database"
      *     }
-     * </pre>
-     * there is the possibility that the DB can't store more data too. In this case, the json returned will be:
-     * <pre>
-     *     {
-     *         "result": "error",
-     *         "reason": "Impossible to save data in the DB"
-     *     }
-     * </pre>
-     * Finally, the DB could not be reachable. In that case, the error will be:
-     * <pre>
-     *     {
-     *         "result": "error",
-     *         "reason": "Impossible to access the DB"
-     *     }
-     * </pre>
      */
     @Override
     public Object handle(Request request, Response response) {

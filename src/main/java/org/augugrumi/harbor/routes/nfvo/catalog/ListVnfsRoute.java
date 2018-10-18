@@ -32,6 +32,7 @@ public class ListVnfsRoute implements Route {
      */
     @Override
     public Object handle(Request request, Response response) {
+        // TODO is it worth to create a dedicate DataWizard method?
         LOG.debug(this.getClass().getSimpleName() + " called");
         final Persistence db = PersistenceRetriever.getVnfDb();
         ResponseCreator toSendBack;

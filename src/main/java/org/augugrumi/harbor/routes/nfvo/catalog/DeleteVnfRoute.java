@@ -31,24 +31,9 @@ public class DeleteVnfRoute implements Route {
      * when the operation is successful, otherwise if the backend is not able to delete the file it returns: <pre>
      *     {
      *         "result": "error",
-     *         "reason": "Failed to delete the file"
+     *         "reason": "Impossible to remove the object from the database"
      *     }
      * </pre>
-     * or, if the id doesn't exists: <pre>
-     *     {
-     *         "result": "error",
-     *         "reason": "The requested YAML doesn't exist"
-     *     }
-     * </pre>
-     * Finally, the DB could not be reachable. In that case, the error will be:
-     * <pre>
-     *     {
-     *         "result": "error",
-     *         "reason": "Impossible to access the DB"
-     *     }
-     * </pre>
-     * <p>
-     * This method never occur in an 500 Internal Error.
      */
     @Override
     public Object handle(Request request, Response response) {
