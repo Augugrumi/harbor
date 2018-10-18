@@ -1,6 +1,7 @@
 package org.augugrumi.harbor.k8s.cli;
 
 import org.augugrumi.harbor.k8s.K8sCommandOutput;
+import org.augugrumi.harbor.k8s.K8sResultConverter;
 import org.json.JSONObject;
 
 /**

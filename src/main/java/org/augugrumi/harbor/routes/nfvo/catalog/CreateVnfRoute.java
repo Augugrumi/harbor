@@ -37,6 +37,7 @@ public class CreateVnfRoute implements Route {
      *         "result": "error",
      *         "reason": "Impossible to add the object in the database"
      *     }
+     * </pre>
      */
     @Override
     public Object handle(Request request, Response response) {
