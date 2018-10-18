@@ -47,7 +47,7 @@ public class NsLauncherRoute implements Route {
                         }); // TODO should check if the deployment it's ok
             }
             final int spi = ns.getSPI();
-            final InetAddress[] roulette = InetAddress.getAllByName(ConfigManager.getConfig().getRouletteUrl());
+            final InetAddress[] roulette = InetAddress.getAllByName(ConfigManager.getConfig().getRouletteUrl().getHost());
             for (final InetAddress r : roulette) {
                 // Make request to update the entry in the roulette DB
                 final MediaType json = MediaType.parse("application/json; charset=utf-8");

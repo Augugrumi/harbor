@@ -154,8 +154,8 @@ public class ConfigManager {
             return this.storageFolder;
         }
 
-        public String getRouletteUrl() {
-            return rouletteUrl.toString();
+        public URL getRouletteUrl() {
+            return rouletteUrl;
         }
 
         /**
