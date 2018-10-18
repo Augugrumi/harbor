@@ -54,7 +54,7 @@ public class ConfigManager {
         // End config keys
 
         // Default variables
-        final private static String LOCALHOST = "localhost";
+        final private static String LOCALHOST = "http://localhost";
         final private static String HB_HOME = File.separator + ".harbor" + File.separator + "persistence";
         // End default variables
 
