@@ -83,13 +83,11 @@ public class VirtualNetworkFunction extends AbsNetworkData {
 
     public List<NetworkService> getNsClaims() throws NoSuchNetworkComponentException {
         checkValidityOrThrow();
-        List<NetworkService> res = new ArrayList<>();
-        Result<JSONObject> qRes = getDB().get(getMyQuery());
+        final List<NetworkService> res = new ArrayList<>();
+        final Result<JSONObject> qRes = getDB().get(getMyQuery());
         if (qRes.isSuccessful()) {
-            JSONArray array = qRes.getContent().optJSONArray(Fields.NS_CLAIMS);
-            if (array == null) {
-                array = new JSONArray();
-            }
+            final String stringArray = qRes.getContent().optString(Fields.NS_CLAIMS, "[]");
+            JSONArray array = new JSONArray(stringArray);
             List<String> services = (List) array.toList();
             for (final String s : services) {
                 res.add(new NetworkService(s));
