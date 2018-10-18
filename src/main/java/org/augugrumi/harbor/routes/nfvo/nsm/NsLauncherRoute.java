@@ -24,6 +24,7 @@ import spark.Response;
 import spark.Route;
 
 import java.net.InetAddress;
+import java.net.URL;
 
 public class NsLauncherRoute implements Route {
 
@@ -47,7 +48,8 @@ public class NsLauncherRoute implements Route {
                         }); // TODO should check if the deployment it's ok
             }
             final int spi = ns.getSPI();
-            final InetAddress[] roulette = InetAddress.getAllByName(ConfigManager.getConfig().getRouletteUrl().getHost());
+            final URL rouletteUrl = ConfigManager.getConfig().getRouletteUrl();
+            final InetAddress[] roulette = InetAddress.getAllByName(rouletteUrl.getHost());
             for (final InetAddress r : roulette) {
                 // Make request to update the entry in the roulette DB
                 final MediaType json = MediaType.parse("application/json; charset=utf-8");
@@ -61,7 +63,8 @@ public class NsLauncherRoute implements Route {
                 });
                 OkHttpClient client = new OkHttpClient();
 
-                String url = r.toString() + "/routes/" + spi;
+                int roulettePort = rouletteUrl.getPort() == -1 ? rouletteUrl.getDefaultPort() : rouletteUrl.getPort();
+                final String url = rouletteUrl.getProtocol() + "://" + r.getHostAddress() + ":" + roulettePort + "/routes/" + spi;
                 LOG.info("Url to send: " + url);
 
                 RequestBody body = RequestBody.create(json, update.toString());
