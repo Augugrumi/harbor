@@ -61,9 +61,12 @@ public class NsLauncherRoute implements Route {
                 });
                 OkHttpClient client = new OkHttpClient();
 
+                String url = r.toString() + "/routes/" + spi;
+                LOG.info("Url to send: " + url);
+
                 RequestBody body = RequestBody.create(json, update.toString());
                 okhttp3.Request postRequest = new okhttp3.Request.Builder()
-                        .url(r.toString() + "/routes/" + spi)
+                        .url(url)
                         .post(body)
                         .build();
                 okhttp3.Response postResponse = client.newCall(postRequest).execute();
