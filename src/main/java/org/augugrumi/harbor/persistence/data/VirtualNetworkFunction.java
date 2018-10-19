@@ -12,6 +12,7 @@ import org.slf4j.Logger;
 import org.yaml.snakeyaml.Yaml;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -20,6 +21,7 @@ import static org.augugrumi.harbor.util.ObjectConverter.json2yaml;
 public class VirtualNetworkFunction extends AbsNetworkData {
 
     private final static Logger LOG = ConfigManager.getConfig().getApplicationLogger(VirtualNetworkFunction.class);
+    private final static String YAML_SEPARATOR = "---";
     private String vnfDefinition;
 
     public interface Fields extends Data.Fields {
@@ -32,6 +34,16 @@ public class VirtualNetworkFunction extends AbsNetworkData {
         vnfDefinition = null;
     }
 
+    private String lineCopy(String[] doc) {
+        StringBuilder accumulate = new StringBuilder();
+        for (String line : doc) {
+            accumulate.append(line);
+            accumulate.append('\n');
+        }
+        LOG.info(accumulate.toString());
+        return accumulate.toString();
+    }
+
     @Override
     synchronized boolean saveAndClean() {
         if (isValid()) {
@@ -39,8 +51,24 @@ public class VirtualNetworkFunction extends AbsNetworkData {
         }
         JSONObject myselfJson = new JSONObject();
         Yaml yaml = new Yaml();
-        JSONObject convertedFromYaml = new JSONObject((Map) yaml.load(vnfDefinition));
-        myselfJson.put(Fields.DEFINITION, convertedFromYaml);
+        final JSONArray vnfYamls = new JSONArray();
+        int lineNumber = 0;
+        int previousLineInterruption = 0;
+        final List<String> yamls = new ArrayList<>();
+        final String[] lines = vnfDefinition.split(System.lineSeparator());
+        for (final String line : lines) {
+            if (line.trim().equals(YAML_SEPARATOR)) {
+                yamls.add(lineCopy(Arrays.copyOfRange(lines, previousLineInterruption + yamls.size(), lineNumber)));
+                previousLineInterruption = lineNumber;
+            }
+            lineNumber++;
+        }
+        yamls.add(lineCopy(Arrays.copyOfRange(lines, previousLineInterruption + yamls.size(), lines.length)));
+        for (final String pieceOfYaml : yamls) {
+            final JSONObject convertedFromYaml = new JSONObject((Map) yaml.load(pieceOfYaml));
+            vnfYamls.put(convertedFromYaml);
+        }
+        myselfJson.put(Fields.DEFINITION, vnfYamls);
         Query myselfQuery = new Query() {
             @Override
             public String getID() {
@@ -73,7 +101,16 @@ public class VirtualNetworkFunction extends AbsNetworkData {
         checkValidityOrThrow();
         Result<JSONObject> res = getDB().get(getMyQuery());
         if (res.isSuccessful()) {
-            return json2yaml(res.getContent(), Fields.DEFINITION);
+            JSONArray listOfDefinitions = res.getContent().optJSONArray(Fields.DEFINITION);
+            StringBuilder concatenatedRes = new StringBuilder();
+            for (final Object definition : listOfDefinitions) {
+                JSONObject jsonDefinition = (JSONObject) definition;
+                String stringDefinition = jsonDefinition.toString();
+                String partialDefinition = json2yaml(stringDefinition);
+                concatenatedRes.append(partialDefinition);
+                concatenatedRes.append(YAML_SEPARATOR + "\n");
+            }
+            return concatenatedRes.toString();
         } else {
             return "";
         }
@@ -147,8 +184,7 @@ public class VirtualNetworkFunction extends AbsNetworkData {
     @Override
     public JSONObject toJson() {
         JSONObject json = super.toJson();
-        String convert = json2yaml(json, Fields.DEFINITION);
-        json.put(Fields.DEFINITION, convert);
+        json.put(Fields.DEFINITION, getDefinition());
         return json;
     }
 }

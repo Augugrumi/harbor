@@ -12,8 +12,12 @@ public class ObjectConverter {
 
     public static String json2yaml(JSONObject json, String field) {
         Yaml yaml = new Yaml();
-        Map<String, Object> yamlMap = yaml.load(json.getJSONObject(field).toString());
-        return yaml.dump(yamlMap);
+        return yaml.dump(yaml.load(json.getJSONObject(field).toString()));
+    }
+
+    public static String json2yaml(String json) {
+        Yaml yaml = new Yaml();
+        return yaml.dump(yaml.load(json));
     }
 
     public static JSONObject yaml2json(String strYaml) {
