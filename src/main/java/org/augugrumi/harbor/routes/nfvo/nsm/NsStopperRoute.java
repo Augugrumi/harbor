@@ -26,9 +26,9 @@ import java.net.URL;
 import java.util.LinkedList;
 import java.util.List;
 
-public class NsDeleteRoute implements Route {
+public class NsStopperRoute implements Route {
 
-    private final static Logger LOG = ConfigManager.getConfig().getApplicationLogger(NsDeleteRoute.class);
+    private final static Logger LOG = ConfigManager.getConfig().getApplicationLogger(NsStopperRoute.class);
 
     @Override
     public Object handle(Request request, Response response) throws IOException {
@@ -97,11 +97,6 @@ public class NsDeleteRoute implements Route {
             final String reason = Errors.ROULETTE_UPDATE_NOT_COMPLETE + '\n' + errors.toString();
             return new ResponseCreator(ResponseCreator.ResponseType.ERROR)
                     .add(ResponseCreator.Fields.REASON, reason);
-        }
-        final boolean nsResDeletion = DataWizard.deleteNS(request.params(ParamConstants.ID));
-        if (!nsResDeletion) {
-            return new ResponseCreator(ResponseCreator.ResponseType.ERROR)
-                    .add(ResponseCreator.Fields.REASON, Errors.DB_REMOVE);
         }
         return new ResponseCreator(ResponseCreator.ResponseType.OK);
     }

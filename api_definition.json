@@ -75,7 +75,7 @@
       {
         "name": "/stop/:id",
         "type": "get",
-        "function": "org.augugrumi.harbor.routes.nfvo.nsm.NsDeleteRoute"
+        "function": "org.augugrumi.harbor.routes.nfvo.nsm.NsStopperRoute"
       }
     ]
   }
