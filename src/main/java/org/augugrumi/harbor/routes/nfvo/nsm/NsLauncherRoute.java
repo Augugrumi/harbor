@@ -74,6 +74,8 @@ public class NsLauncherRoute implements Route {
                         .build();
                 okhttp3.Response postResponse = client.newCall(postRequest).execute();
 
+                ResponseCreator rc = null;
+
                 if (postResponse.isSuccessful()) {
                     ResponseBody bodyResponse = postResponse.body();
                     if (bodyResponse != null) {
@@ -84,20 +86,24 @@ public class NsLauncherRoute implements Route {
                             LOG.error("Roulette replied with an error status while updating entry " + spi + ". Error " +
                                     "message: \n" +
                                     jsonResponse.getString(ResponseCreator.Fields.REASON.toString().toLowerCase()));
-                            return new ResponseCreator(ResponseCreator.ResponseType.ERROR)
+                            rc = new ResponseCreator(ResponseCreator.ResponseType.ERROR)
                                     .add(ResponseCreator.Fields.REASON, Errors.ROULETTE_UPDATE_FAILURE);
                         }
                     } else {
                         LOG.error("Roulette replied with an empty body while updating entry " + spi + ". Aborting " +
                                 "route update.");
-                        return new ResponseCreator(ResponseCreator.ResponseType.ERROR)
+                        rc = new ResponseCreator(ResponseCreator.ResponseType.ERROR)
                                 .add(ResponseCreator.Fields.REASON, Errors.ROULETTE_EMPTY_REPLY);
                     }
                 } else {
                     LOG.error("The Roulette post response was not successful for entry " + spi + ". Aborting " +
                             "route update");
-                    return new ResponseCreator(ResponseCreator.ResponseType.ERROR)
+                    rc = new ResponseCreator(ResponseCreator.ResponseType.ERROR)
                             .add(ResponseCreator.Fields.REASON, Errors.ROULETTE_UPDATE_FAILURE);
+                }
+                postResponse.close();
+                if (rc != null) {
+                    return rc;
                 }
             }
             // If the codes arrives here, it means there hasn't been errors, so we return an ok json reply
