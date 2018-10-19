@@ -69,25 +69,21 @@ public class NsDeleteRoute implements Route {
             okhttp3.Response deleteResponse = client.newCall(deleteRequest).execute();
 
             final List<UpdateError> sessionError = new LinkedList<>();
-
-            if (!deleteResponse.isSuccessful()) {
+            if (!deleteResponse.isSuccessful() || deleteResponse.code() != 200) {
                 LOG.error("The Roulette post response was not successful for entry " + spi + ". Aborting route update");
                 sessionError.add(new UpdateError(r, "The Roulette post response was not successful for entry " +
                         spi + ". Aborting route update"));
+            } else if (deleteResponse.body() == null) {
+                sessionError.add(new UpdateError(r, Errors.ROULETTE_EMPTY_REPLY));
             } else {
-                if (deleteResponse.body() == null) {
-                    deleteResponse.close();
-                    sessionError.add(new UpdateError(r, Errors.ROULETTE_EMPTY_REPLY));
-                } else {
-                    JSONObject jsonResponse = new JSONObject(deleteResponse.body().string());
-                    if (!ResponseCreator.ResponseType.OK.toString().equalsIgnoreCase(
-                            jsonResponse.optString(ResponseCreator.Fields.RESULT.toString().toLowerCase(),
-                                    ""))) {
-                        sessionError.add(new UpdateError(r, Errors.ROULETTE_UPDATE_FAILURE));
-                    }
+                JSONObject jsonResponse = new JSONObject(deleteResponse.body().string());
+                if (!ResponseCreator.ResponseType.OK.toString().equalsIgnoreCase(
+                        jsonResponse.optString(ResponseCreator.Fields.RESULT.toString().toLowerCase(),
+                                ""))) {
+                    sessionError.add(new UpdateError(r, Errors.ROULETTE_UPDATE_FAILURE));
                 }
-                erroneousRouletteUpdate.addAll(sessionError);
             }
+            erroneousRouletteUpdate.addAll(sessionError);
             deleteResponse.close();
         }
 
