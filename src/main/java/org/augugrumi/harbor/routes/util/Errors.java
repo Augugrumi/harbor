@@ -6,4 +6,5 @@ public interface Errors {
     String DB_REMOVE = "Impossible to remove the object from the database";
     String ROULETTE_UPDATE_FAILURE = "Impossible to update Roulette entry";
     String ROULETTE_EMPTY_REPLY = "Roulette replied with an empty message";
+    String ROULETTE_UPDATE_NOT_COMPLETE = "Some roulette db weren't updated correctly.";
 }
