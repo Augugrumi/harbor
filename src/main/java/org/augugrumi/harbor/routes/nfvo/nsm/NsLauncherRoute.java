@@ -81,14 +81,21 @@ public class NsLauncherRoute implements Route {
                         if (!ResponseCreator.ResponseType.OK.toString().equalsIgnoreCase(
                                 jsonResponse.optString(ResponseCreator.Fields.RESULT.toString().toLowerCase(),
                                         ""))) {
+                            LOG.error("Roulette replied with an error status while updating entry " + spi + ". Error " +
+                                    "message: \n" +
+                                    jsonResponse.getString(ResponseCreator.Fields.REASON.toString().toLowerCase()));
                             return new ResponseCreator(ResponseCreator.ResponseType.ERROR)
                                     .add(ResponseCreator.Fields.REASON, Errors.ROULETTE_UPDATE_FAILURE);
                         }
                     } else {
+                        LOG.error("Roulette replied with an empty body while updating entry " + spi + ". Aborting " +
+                                "route update.");
                         return new ResponseCreator(ResponseCreator.ResponseType.ERROR)
                                 .add(ResponseCreator.Fields.REASON, Errors.ROULETTE_EMPTY_REPLY);
                     }
                 } else {
+                    LOG.error("The Roulette post response was not successful for entry " + spi + ". Aborting " +
+                            "route update");
                     return new ResponseCreator(ResponseCreator.ResponseType.ERROR)
                             .add(ResponseCreator.Fields.REASON, Errors.ROULETTE_UPDATE_FAILURE);
                 }
