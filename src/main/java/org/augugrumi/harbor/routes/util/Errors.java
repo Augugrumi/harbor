@@ -7,4 +7,5 @@ public interface Errors {
     String ROULETTE_UPDATE_FAILURE = "Impossible to update Roulette entry";
     String ROULETTE_EMPTY_REPLY = "Roulette replied with an empty message";
     String ROULETTE_UPDATE_NOT_COMPLETE = "Some roulette db weren't updated correctly.";
+    String KUBERNETES_IO_ERROR = "An IO exception occurred while interacting with Kubernetes";
 }

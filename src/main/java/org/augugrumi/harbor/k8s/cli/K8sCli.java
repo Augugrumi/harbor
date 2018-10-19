@@ -65,21 +65,21 @@ public class K8sCli implements K8sAPI {
             if (!"active".equals(chainOfCommandsOutput.get(kubelet).getOutput())) {
                 LOG.error("Kubectl output: " + chainOfCommandsOutput.get(kubelet).getOutput());
                 LOG.error("Kubectl exit code: " + chainOfCommandsOutput.get(kubelet).getExitCode());
-                throw new K8sInitFailureException();
+                throw new K8sInitFailureException("Kubectl exited abnormally");
             }
 
             if (chainOfCommandsOutput.get(kubectl).getExitCode() == 0) {
                 kubectlPath = chainOfCommandsOutput.get(kubectl).getOutput();
             } else {
                 LOG.error("Which cannot find " + KUBECTL_DEFAULT_NAME + " command");
-                throw new K8sInitFailureException();
+                throw new K8sInitFailureException("Which cannot find " + KUBECTL_DEFAULT_NAME + " command");
             }
             LOG.debug("Kubectl path is: " + kubectlPath);
             LOG.debug("Kubectl exit code is: " + chainOfCommandsOutput.get(kubectl).getExitCode());
 
         } catch (IOException e) {
             e.printStackTrace();
-            throw new K8sInitFailureException();
+            throw new K8sInitFailureException("IOException while interacting with Kubernetes");
         }
 
     }

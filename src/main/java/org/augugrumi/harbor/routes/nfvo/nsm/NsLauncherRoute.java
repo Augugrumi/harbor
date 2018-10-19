@@ -5,7 +5,9 @@ import okhttp3.OkHttpClient;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import org.augugrumi.harbor.k8s.K8sAPI;
+import org.augugrumi.harbor.k8s.K8sDefaultValue;
 import org.augugrumi.harbor.k8s.K8sRetriever;
+import org.augugrumi.harbor.k8s.exceptions.K8sException;
 import org.augugrumi.harbor.persistence.Result;
 import org.augugrumi.harbor.persistence.data.DataWizard;
 import org.augugrumi.harbor.persistence.data.NetworkService;
@@ -24,6 +26,7 @@ import spark.Request;
 import spark.Response;
 import spark.Route;
 
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.URL;
 import java.util.List;
@@ -37,10 +40,10 @@ public class NsLauncherRoute implements Route {
 
         LOG.debug(this.getClass().getSimpleName() + " called");
         final Result<NetworkService> nsRes = DataWizard.getNs(request.params(ParamConstants.ID));
+        final K8sAPI k8s = K8sRetriever.getK8sAPI();
         if (nsRes.isSuccessful()) {
             final NetworkService ns = nsRes.getContent();
             for (final VirtualNetworkFunction vnf : ns.getChain()) {
-                final K8sAPI k8s = K8sRetriever.getK8sAPI();
                 k8s.createFromYaml(FileUtils.createTmpFile("hrbr", ".yaml",
                         vnf.getDefinition()).toURI().toURL(),
                         res -> {
@@ -59,9 +62,33 @@ public class NsLauncherRoute implements Route {
                 final JSONArray si = new JSONArray();
                 ns.getChain().forEach(item -> {
                     final JSONObject singleSI = new JSONObject();
-                    singleSI.put(Roulette.SI.URL, item.getID());
-                    singleSI.put(Roulette.SI.PORT, 80); // FIXME find out the port kubernetes gave to the service!
-                    si.put(singleSI);
+                    int port = -1;
+                    try {
+                        port = Integer.parseInt((String) k8s.getServiceInfo(item.getID(), K8sDefaultValue.NAMESPACE, res -> {
+                            if (res.isSuccess()) {
+                                JSONObject jsonRes = (JSONObject) res.getAttachment();
+                                return jsonRes
+                                        .getJSONObject(ResponseCreator.Fields.CONTENT.toString().toLowerCase())
+                                        .getJSONObject("spec")
+                                        .getJSONArray("ports")
+                                        .getJSONObject(0)
+                                        .optString("nodePort", "-1");
+                            } else {
+                                return "-2";
+                            }
+                        }));
+                    } catch (IOException e) {
+                        LOG.warn(Errors.KUBERNETES_IO_ERROR);
+                        e.printStackTrace();
+                    }
+
+                    if (port > 0) {
+                        singleSI.put(Roulette.SI.URL, item.getID());
+                        singleSI.put(Roulette.SI.PORT, port); // FIXME find out the port kubernetes gave to the service!
+                        si.put(singleSI);
+                    } else {
+                        throw new K8sException("Impossible to VNF port deployment");
+                    }
                 });
                 update.put(Roulette.SI_FIELD, si);
                 OkHttpClient client = new OkHttpClient();
