@@ -52,7 +52,7 @@ public class NsStopperRoute implements Route {
         final int spi = ns.getSPI();
         final URL rouletteUrl = ConfigManager.getConfig().getRouletteUrl();
 
-        final List<InetAddress> roulette = InetAddressFilter.filterIPv4(rouletteUrl);
+        final List<InetAddress> roulette = InetAddressFilter.filterIPv6(rouletteUrl);
         final List<UpdateError> erroneousRouletteUpdate = new LinkedList<>();
         for (final InetAddress r : roulette) {
 

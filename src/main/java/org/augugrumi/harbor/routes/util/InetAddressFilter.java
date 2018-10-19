@@ -10,6 +10,13 @@ import java.util.List;
 
 public class InetAddressFilter {
 
+    /**
+     * Filters all the host possible IPv6
+     *
+     * @param initialUrl the host URL
+     * @return a list containing only IPv4
+     * @throws UnknownHostException @see InetAddress
+     */
     public static List<InetAddress> filterIPv6(URL initialUrl) throws UnknownHostException {
         List<InetAddress> res = new ArrayList<>();
         for (InetAddress toCheck : InetAddress.getAllByName(initialUrl.getHost())) {
@@ -20,6 +27,12 @@ public class InetAddressFilter {
         return res;
     }
 
+    /**
+     * Filters all the host possible IPv4
+     * @param initialUrl the host URL
+     * @return a list containing only IPv6
+     * @throws UnknownHostException @see InetAddress
+     */
     public static List<InetAddress> filterIPv4(URL initialUrl) throws UnknownHostException {
         List<InetAddress> res = new ArrayList<>();
         for (InetAddress toCheck : InetAddress.getAllByName(initialUrl.getHost())) {

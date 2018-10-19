@@ -51,7 +51,7 @@ public class NsLauncherRoute implements Route {
             final int spi = ns.getSPI();
             final URL rouletteUrl = ConfigManager.getConfig().getRouletteUrl();
 
-            final List<InetAddress> roulette = InetAddressFilter.filterIPv4(rouletteUrl);
+            final List<InetAddress> roulette = InetAddressFilter.filterIPv6(rouletteUrl);
             for (final InetAddress r : roulette) {
                 // Make request to update the entry in the roulette DB
                 final MediaType json = MediaType.parse("application/json; charset=utf-8");
