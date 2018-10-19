@@ -20,6 +20,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import static org.augugrumi.harbor.k8s.cli.K8sCliConstants.*;
+
 /**
  * Specific Kubernetes API implementation based on CLI interaction and output parsing. Even if error prone, this could
  * be useful when Harbor is running outside a Kubernetes cluster or it has only access to the <code>kubectl</code>
@@ -47,12 +49,12 @@ public class K8sCli implements K8sAPI {
         try {
             // Check if kubelet is up and Kubectl exists
             List<Process> kubelet = new LinkedList<>();
-            kubelet.add(new ProcessBuilder("systemctl", "status", "kubelet").start());
+            kubelet.add(new ProcessBuilder("systemctl", STATUS, KUBELET_DEFAULT_NAME).start());
             kubelet.add(new ProcessBuilder("grep", "Active").start());
             kubelet.add(new ProcessBuilder("cut", "-d", " ", "-f5").start());
 
             List<Process> kubectl = new LinkedList<>();
-            kubectl.add(new ProcessBuilder("which", "kubectl").start());
+            kubectl.add(new ProcessBuilder("which", KUBECTL_DEFAULT_NAME).start());
 
             Map<List<Process>, CommandExec.Result> chainOfCommandsOutput = new CommandExec.Builder()
                     .add(kubelet)
@@ -69,7 +71,7 @@ public class K8sCli implements K8sAPI {
             if (chainOfCommandsOutput.get(kubectl).getExitCode() == 0) {
                 kubectlPath = chainOfCommandsOutput.get(kubectl).getOutput();
             } else {
-                LOG.error("Which cannot find kubectl command");
+                LOG.error("Which cannot find " + KUBECTL_DEFAULT_NAME + " command");
                 throw new K8sInitFailureException();
             }
             LOG.debug("Kubectl path is: " + kubectlPath);
@@ -96,7 +98,7 @@ public class K8sCli implements K8sAPI {
 
         List<Process> yamlCreation = new ArrayList<>();
 
-        yamlCreation.add(new ProcessBuilder(kubectlPath, "create", "-f", yaml.getAbsolutePath()).start());
+        yamlCreation.add(new ProcessBuilder(kubectlPath, CREATE, FILE_FLAG, yaml.getAbsolutePath()).start());
 
         final CommandExec.Result commandRes = new CommandExec.Builder()
                 .add(yamlCreation)
@@ -150,7 +152,7 @@ public class K8sCli implements K8sAPI {
 
         List<Process> yamlCreation = new ArrayList<>();
 
-        yamlCreation.add(new ProcessBuilder(kubectlPath, "delete", "-f", yamlToDelete.getAbsolutePath()).start());
+        yamlCreation.add(new ProcessBuilder(kubectlPath, DELETE, FILE_FLAG, yamlToDelete.getAbsolutePath()).start());
 
         final CommandExec.Result commandRes = new CommandExec.Builder()
                 .add(yamlCreation)
@@ -170,6 +172,37 @@ public class K8sCli implements K8sAPI {
         } else {
             toSendBack = new ResponseCreator(ResponseCreator.ResponseType.ERROR);
             toSendBack.add(ResponseCreator.Fields.REASON, out);
+        }
+
+        K8sCommandJSONOutput res = new K8sCommandJSONOutput(true, new JSONObject(toSendBack.toString()));
+        return converter.convert(res);
+    }
+
+    @Override
+    public Object getServiceInfo(String serviceName, String namespace, K8sResultConverter converter)
+            throws K8sException, IOException {
+
+        ResponseCreator toSendBack;
+
+        final List<Process> service = new LinkedList<>();
+        // kubectl -n $namespace -o json get service $servicename
+        service.add(new ProcessBuilder(kubectlPath,
+                NAMESPACE_FLAG, namespace,
+                JSON_OPTION[0], JSON_OPTION[1],
+                GET, SERVICE, serviceName).start());
+
+        Map<List<Process>, CommandExec.Result> commandsOutput = new CommandExec.Builder()
+                .add(service)
+                .build()
+                .exec();
+
+        final String out = commandsOutput.get(service).getOutput();
+        if (commandsOutput.get(service).getExitCode() == 0) {
+            toSendBack = new ResponseCreator(ResponseCreator.ResponseType.OK)
+                    .add(ResponseCreator.Fields.CONTENT, out);
+        } else {
+            toSendBack = new ResponseCreator(ResponseCreator.ResponseType.ERROR)
+                    .add(ResponseCreator.Fields.REASON, out);
         }
 
         K8sCommandJSONOutput res = new K8sCommandJSONOutput(true, new JSONObject(toSendBack.toString()));

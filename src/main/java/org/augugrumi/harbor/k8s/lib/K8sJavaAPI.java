@@ -28,4 +28,10 @@ public class K8sJavaAPI implements K8sAPI {
     public Object deleteFromYaml(URL pathToFile, K8sResultConverter converter) throws K8sException {
         return null;
     }
+
+    @Override
+    public Object getServiceInfo(String serviceName, String namespace, K8sResultConverter converter)
+            throws K8sException {
+        return null;
+    }
 }
