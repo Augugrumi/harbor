@@ -49,6 +49,7 @@ public class NsLauncherRoute implements Route {
             }
             final int spi = ns.getSPI();
             final URL rouletteUrl = ConfigManager.getConfig().getRouletteUrl();
+            // TODO filter out ip6 addresses
             final InetAddress[] roulette = InetAddress.getAllByName(rouletteUrl.getHost());
             for (final InetAddress r : roulette) {
                 // Make request to update the entry in the roulette DB
@@ -66,7 +67,7 @@ public class NsLauncherRoute implements Route {
 
                 int roulettePort = rouletteUrl.getPort() == -1 ? rouletteUrl.getDefaultPort() : rouletteUrl.getPort();
                 final String url = rouletteUrl.getProtocol() + "://" + r.getHostAddress() + ":" + roulettePort + "/routes/" + spi;
-                LOG.info("Url to send: " + url);
+                LOG.debug(spi + " - Url to send: " + url);
 
                 RequestBody body = RequestBody.create(json, update.toString());
                 okhttp3.Request postRequest = new okhttp3.Request.Builder()
