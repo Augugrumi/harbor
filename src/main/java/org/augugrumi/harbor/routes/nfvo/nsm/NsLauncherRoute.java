@@ -11,6 +11,7 @@ import org.augugrumi.harbor.persistence.data.DataWizard;
 import org.augugrumi.harbor.persistence.data.NetworkService;
 import org.augugrumi.harbor.persistence.data.VirtualNetworkFunction;
 import org.augugrumi.harbor.routes.util.Errors;
+import org.augugrumi.harbor.routes.util.InetAddressFilter;
 import org.augugrumi.harbor.routes.util.ParamConstants;
 import org.augugrumi.harbor.routes.util.jsonstructure.Roulette;
 import org.augugrumi.harbor.util.ConfigManager;
@@ -25,6 +26,7 @@ import spark.Route;
 
 import java.net.InetAddress;
 import java.net.URL;
+import java.util.List;
 
 public class NsLauncherRoute implements Route {
 
@@ -38,7 +40,6 @@ public class NsLauncherRoute implements Route {
         if (nsRes.isSuccessful()) {
             final NetworkService ns = nsRes.getContent();
             for (final VirtualNetworkFunction vnf : ns.getChain()) {
-                final String definition = vnf.getDefinition();
                 final K8sAPI k8s = K8sRetriever.getK8sAPI();
                 k8s.createFromYaml(FileUtils.createTmpFile("hrbr", ".yaml",
                         vnf.getDefinition()).toURI().toURL(),
@@ -49,8 +50,8 @@ public class NsLauncherRoute implements Route {
             }
             final int spi = ns.getSPI();
             final URL rouletteUrl = ConfigManager.getConfig().getRouletteUrl();
-            // TODO filter out ip6 addresses
-            final InetAddress[] roulette = InetAddress.getAllByName(rouletteUrl.getHost());
+
+            final List<InetAddress> roulette = InetAddressFilter.filterIPv4(rouletteUrl);
             for (final InetAddress r : roulette) {
                 // Make request to update the entry in the roulette DB
                 final MediaType json = MediaType.parse("application/json; charset=utf-8");
