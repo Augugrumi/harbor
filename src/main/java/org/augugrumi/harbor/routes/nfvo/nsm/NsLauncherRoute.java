@@ -61,6 +61,7 @@ public class NsLauncherRoute implements Route {
                     singleSI.put(Roulette.SI.PORT, 80); // FIXME find out the port kubernetes gave to the service!
                     si.put(singleSI);
                 });
+                update.put(Roulette.SI_FIELD, si);
                 OkHttpClient client = new OkHttpClient();
 
                 int roulettePort = rouletteUrl.getPort() == -1 ? rouletteUrl.getDefaultPort() : rouletteUrl.getPort();
