@@ -67,9 +67,9 @@ public class NsLauncherRoute implements Route {
                         port = Integer.parseInt((String) k8s.getServiceInfo(item.getID(), K8sDefaultValue.NAMESPACE, res -> {
                             if (res.isSuccess()) {
                                 JSONObject jsonRes = (JSONObject) res.getAttachment();
-                                return jsonRes
-                                        .getJSONObject(ResponseCreator.Fields.CONTENT.toString().toLowerCase())
-                                        .getJSONObject("spec")
+                                final JSONObject content = new JSONObject(jsonRes.getString(ResponseCreator.Fields.CONTENT.toString().toLowerCase()));
+
+                                return content.getJSONObject("spec")
                                         .getJSONArray("ports")
                                         .getJSONObject(0)
                                         .optString("nodePort", "-1");
@@ -137,6 +137,7 @@ public class NsLauncherRoute implements Route {
                 }
             }
             // If the codes arrives here, it means there hasn't been errors, so we return an ok json reply
+            ns.setStatus(NetworkService.STATUS_UP);
             return new ResponseCreator(ResponseCreator.ResponseType.OK);
         }
         return new ResponseCreator(ResponseCreator.ResponseType.ERROR)

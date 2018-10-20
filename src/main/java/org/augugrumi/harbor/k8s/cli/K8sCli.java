@@ -186,10 +186,17 @@ public class K8sCli implements K8sAPI {
 
         final List<Process> service = new LinkedList<>();
         // kubectl -n $namespace -o json get service $servicename
-        service.add(new ProcessBuilder(kubectlPath,
-                NAMESPACE_FLAG, namespace,
-                JSON_OPTION[0], JSON_OPTION[1],
-                GET, SERVICE, serviceName).start());
+        if (serviceName != null) {
+            service.add(new ProcessBuilder(kubectlPath,
+                    NAMESPACE_FLAG, namespace,
+                    JSON_OPTION[0], JSON_OPTION[1],
+                    GET, SERVICE, serviceName).start());
+        } else {
+            service.add(new ProcessBuilder(kubectlPath,
+                    NAMESPACE_FLAG, namespace,
+                    JSON_OPTION[0], JSON_OPTION[1],
+                    GET, SERVICE).start());
+        }
 
         Map<List<Process>, CommandExec.Result> commandsOutput = new CommandExec.Builder()
                 .add(service)

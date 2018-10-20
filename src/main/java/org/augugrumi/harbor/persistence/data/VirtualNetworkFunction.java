@@ -22,8 +22,14 @@ public class VirtualNetworkFunction extends AbsNetworkData {
 
     private final static Logger LOG = ConfigManager.getConfig().getApplicationLogger(VirtualNetworkFunction.class);
     private final static String YAML_SEPARATOR = "---";
+
     private String vnfDefinition;
 
+    VirtualNetworkFunction(String id, String definition) {
+        super(id, PersistenceRetriever.getVnfDb());
+
+        vnfDefinition = definition;
+    }
     public interface Fields extends Data.Fields {
 
         String DEFINITION = "definition";
@@ -42,6 +48,55 @@ public class VirtualNetworkFunction extends AbsNetworkData {
         }
         LOG.info(accumulate.toString());
         return accumulate.toString();
+    }
+
+    public List<NetworkService> getNsClaims() throws NoSuchNetworkComponentException {
+        checkValidityOrThrow();
+        final List<NetworkService> res = new ArrayList<>();
+        final Result<JSONObject> qRes = getDB().get(getMyQuery());
+        if (qRes.isSuccessful()) {
+            final String stringArray = qRes.getContent().optString(Fields.NS_CLAIMS, "[]");
+            JSONArray array = new JSONArray(stringArray);
+            List<String> services = (List) array.toList();
+            for (final String s : services) {
+                res.add(new NetworkService(s));
+            }
+        }
+        return res;
+    }
+
+    boolean addNSClaim(NetworkService ns) throws NoSuchNetworkComponentException {
+        checkValidityOrThrow();
+        synchronized (this) {
+            if (!ns.isValid()) {
+                throw new NoSuchNetworkComponentException("No NS with id " + ns.getID() + " found");
+            }
+
+            List<NetworkService> res = getNsClaims();
+            res.add(ns);
+            List<String> newIdList = new ArrayList<>();
+            for (final NetworkService n : res) {
+                newIdList.add(n.getID());
+            }
+            return genericSet(new FieldPath(Fields.NS_CLAIMS), newIdList);
+        }
+    }
+
+    boolean deleteNSClaim(NetworkService ns) throws NoSuchNetworkComponentException {
+        checkValidityOrThrow();
+        synchronized (this) {
+            if (!ns.isValid()) {
+                throw new NoSuchNetworkComponentException("No NS with id " + ns.getID() + " found");
+            }
+
+            List<NetworkService> res = getNsClaims();
+            res.remove(ns);
+            List<String> newIdList = new ArrayList<>();
+            for (final NetworkService n : res) {
+                newIdList.add(n.getID());
+            }
+            return genericSet(new FieldPath(Fields.NS_CLAIMS), newIdList);
+        }
     }
 
     @Override
@@ -77,7 +132,7 @@ public class VirtualNetworkFunction extends AbsNetworkData {
 
             @Override
             public String getContent() {
-                return myselfJson.toString(); // FIXME escape the \n character!
+                return myselfJson.toString(); // TODO do we need to the \n character?
             }
         };
         Result<Void> queryRes = getDB().save(myselfQuery);
@@ -85,12 +140,6 @@ public class VirtualNetworkFunction extends AbsNetworkData {
             clean();
         }
         return queryRes.isSuccessful();
-    }
-
-    VirtualNetworkFunction(String id, String definition) {
-        super(id, PersistenceRetriever.getVnfDb());
-
-        vnfDefinition = definition;
     }
 
     public VirtualNetworkFunction(String id) {
@@ -118,55 +167,6 @@ public class VirtualNetworkFunction extends AbsNetworkData {
 
     public boolean setDefinition(String newDefinition) {
         return genericSet(new FieldPath(Fields.DEFINITION), newDefinition);
-    }
-
-    public List<NetworkService> getNsClaims() throws NoSuchNetworkComponentException {
-        checkValidityOrThrow();
-        final List<NetworkService> res = new ArrayList<>();
-        final Result<JSONObject> qRes = getDB().get(getMyQuery());
-        if (qRes.isSuccessful()) {
-            final String stringArray = qRes.getContent().optString(Fields.NS_CLAIMS, "[]");
-            JSONArray array = new JSONArray(stringArray);
-            List<String> services = (List) array.toList();
-            for (final String s : services) {
-                res.add(new NetworkService(s));
-            }
-        }
-        return res;
-    }
-
-    public boolean addNSClaim(NetworkService ns) throws NoSuchNetworkComponentException {
-        checkValidityOrThrow();
-        synchronized (this) {
-            if (!ns.isValid()) {
-                throw new NoSuchNetworkComponentException("No NS with id " + ns.getID() + " found");
-            }
-
-            List<NetworkService> res = getNsClaims();
-            res.add(ns);
-            List<String> newIdList = new ArrayList<>();
-            for (final NetworkService n : res) {
-                newIdList.add(n.getID());
-            }
-            return genericSet(new FieldPath(Fields.NS_CLAIMS), newIdList);
-        }
-    }
-
-    public boolean deleteNSClaim(NetworkService ns) throws NoSuchNetworkComponentException {
-        checkValidityOrThrow();
-        synchronized (this) {
-            if (!ns.isValid()) {
-                throw new NoSuchNetworkComponentException("No NS with id " + ns.getID() + " found");
-            }
-
-            List<NetworkService> res = getNsClaims();
-            res.remove(ns);
-            List<String> newIdList = new ArrayList<>();
-            for (final NetworkService n : res) {
-                newIdList.add(n.getID());
-            }
-            return genericSet(new FieldPath(Fields.NS_CLAIMS), newIdList);
-        }
     }
 
     public int getNsClaimsSize() {

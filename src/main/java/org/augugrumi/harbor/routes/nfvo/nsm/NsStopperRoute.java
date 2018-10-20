@@ -1,18 +1,14 @@
 package org.augugrumi.harbor.routes.nfvo.nsm;
 
 import okhttp3.OkHttpClient;
-import org.augugrumi.harbor.k8s.K8sAPI;
-import org.augugrumi.harbor.k8s.K8sRetriever;
 import org.augugrumi.harbor.persistence.Result;
 import org.augugrumi.harbor.persistence.data.DataWizard;
 import org.augugrumi.harbor.persistence.data.NetworkService;
-import org.augugrumi.harbor.persistence.data.VirtualNetworkFunction;
 import org.augugrumi.harbor.routes.util.Errors;
 import org.augugrumi.harbor.routes.util.InetAddressFilter;
 import org.augugrumi.harbor.routes.util.ParamConstants;
 import org.augugrumi.harbor.routes.util.UpdateError;
 import org.augugrumi.harbor.util.ConfigManager;
-import org.augugrumi.harbor.util.FileUtils;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import routes.util.ResponseCreator;
@@ -40,15 +36,6 @@ public class NsStopperRoute implements Route {
                     .add(ResponseCreator.Fields.REASON, Errors.NO_SUCH_ELEMENT);
         }
         final NetworkService ns = nsRes.getContent();
-        for (final VirtualNetworkFunction vnf : ns.getChain()) {
-            final K8sAPI k8s = K8sRetriever.getK8sAPI();
-            k8s.deleteFromYaml(FileUtils.createTmpFile("hrbr", ".yaml",
-                    vnf.getDefinition()).toURI().toURL(),
-                    res -> {
-                        LOG.info(res.getAttachment().toString());
-                        return res.getAttachment().toString();
-                    }); // TODO should check if the removal it's ok
-        }
         final int spi = ns.getSPI();
         final URL rouletteUrl = ConfigManager.getConfig().getRouletteUrl();
 
@@ -98,6 +85,7 @@ public class NsStopperRoute implements Route {
             return new ResponseCreator(ResponseCreator.ResponseType.ERROR)
                     .add(ResponseCreator.Fields.REASON, reason);
         }
+        ns.setStatus(NetworkService.STATUS_DOWN);
         return new ResponseCreator(ResponseCreator.ResponseType.OK);
     }
 }

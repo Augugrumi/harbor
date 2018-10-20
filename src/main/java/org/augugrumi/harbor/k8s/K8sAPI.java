@@ -40,7 +40,8 @@ public interface K8sAPI {
     Object deleteFromYaml(URL pathToFile, K8sResultConverter converter) throws K8sException, IOException;
 
     /**
-     * Gives information about a particular service in a given namespace
+     * Gives information about a particular service in a given namespace. If the service is `null`, a list of services
+     * in that namespace is returned instead.
      *
      * @param serviceName the name of the service requested
      * @param converter   a result converter, that allows the API call result to be formatted as the user wishes

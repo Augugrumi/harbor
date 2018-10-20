@@ -4,6 +4,7 @@ import org.augugrumi.harbor.persistence.FieldPath;
 import org.augugrumi.harbor.persistence.PersistenceRetriever;
 import org.augugrumi.harbor.persistence.Query;
 import org.augugrumi.harbor.persistence.Result;
+import org.augugrumi.harbor.services.ServiceRetriever;
 import org.augugrumi.harbor.util.ConfigManager;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -15,12 +16,23 @@ import java.util.List;
 public class NetworkService extends AbsNetworkData {
 
     private final static Logger LOG = ConfigManager.getConfig().getApplicationLogger(NetworkService.class);
+    private final static Listener REF_COUNTING_SERVICE = ServiceRetriever.getRefCountingService();
+
+    public final static String STATUS_DOWN = "down";
+    public final static String STATUS_UP = "up";
 
     private List<VirtualNetworkFunction> vnfs;
 
     public interface Fields extends Data.Fields {
         String CHAIN = "ns";
         String CHAIN_ID = "spi";
+        String STATUS = "status";
+    }
+
+    public interface Listener {
+        void onNSCreation(NetworkService ns);
+
+        void onNSDeletion(NetworkService ns);
     }
 
     public NetworkService(String id) {
@@ -50,6 +62,7 @@ public class NetworkService extends AbsNetworkData {
             }
         }
         myselfJson.put(Fields.CHAIN, vnfsJson);
+        myselfJson.put(Fields.STATUS, STATUS_DOWN);
 
         // Write down chain ID
         int currentMaxSPI = 0;
@@ -131,5 +144,27 @@ public class NetworkService extends AbsNetworkData {
 
     public int size() {
         return getChain().size();
+    }
+
+    public String getStatus() {
+        checkValidityOrThrow();
+        Result<JSONObject> qRes = getDB().get(getMyQuery());
+        if (qRes.isSuccessful()) {
+            return qRes.getContent().getString(Fields.STATUS);
+        }
+        return "";
+    }
+
+    public boolean setStatus(String s) {
+        boolean res = genericSet(new FieldPath(Fields.STATUS), s);
+        // Call the right callback
+        if (STATUS_DOWN.equalsIgnoreCase(s)) {
+            REF_COUNTING_SERVICE.onNSDeletion(this);
+        }
+
+        if (STATUS_UP.equals(s)) {
+            REF_COUNTING_SERVICE.onNSCreation(this);
+        }
+        return res;
     }
 }
