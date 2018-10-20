@@ -39,7 +39,7 @@ public class FSPersistence implements Persistence {
     }
 
     @Override
-    public Result<Void> save(Query q) throws DbException {
+    public synchronized Result<Void> save(Query q) throws DbException {
 
         File toSave = new File(home.getAbsolutePath() + File.separator + q.getID());
         try {
@@ -90,7 +90,7 @@ public class FSPersistence implements Persistence {
     }
 
     @Override
-    public Result<Boolean> update(Query q) throws DbException {
+    public synchronized Result<Boolean> update(Query q) throws DbException {
 
         synchronized (this) {
             Result<Boolean> deleteRes = delete(q);
@@ -112,7 +112,7 @@ public class FSPersistence implements Persistence {
     }
 
     @Override
-    public Result<Boolean> update(SimpleQuery q, Map<FieldPath, Object> toUpdate) throws DbException {
+    public synchronized Result<Boolean> update(SimpleQuery q, Map<FieldPath, Object> toUpdate) throws DbException {
 
         synchronized (this) {
             Result<JSONObject> dataToUpdate = get(q);
@@ -152,7 +152,7 @@ public class FSPersistence implements Persistence {
     }
 
     @Override
-    public Result<JSONObject> pop(Query q) {
+    public synchronized Result<JSONObject> pop(Query q) {
 
         Result<JSONObject> get = get(q);
         File toDelete = new File(home.getAbsolutePath() + File.separator + q.getID());
@@ -170,7 +170,7 @@ public class FSPersistence implements Persistence {
     }
 
     @Override
-    public Result<Boolean> delete(Query q) {
+    public synchronized Result<Boolean> delete(Query q) {
 
         File toDelete = new File(home.getAbsolutePath() + File.separator + q.getID());
 
