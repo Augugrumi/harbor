@@ -1,12 +1,12 @@
-package k8s;
+package org.augugrumi.harbor.k8s;
 
-import k8s.cli.K8sCli;
-import k8s.lib.K8sJavaAPI;
+import org.augugrumi.harbor.k8s.cli.K8sCli;
+import org.augugrumi.harbor.k8s.lib.K8sJavaAPI;
 
 /**
  * Class implementing the Abstract Factory design pattern. It return the requested type of API client
  */
-public class K8sFactory {
+class K8sFactory {
 
     private K8sFactory() {
     }

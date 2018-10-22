@@ -1,16 +1,17 @@
 package org.augugrumi.harbor.routes.nfvo.catalog;
 
+import org.augugrumi.harbor.persistence.Result;
+import org.augugrumi.harbor.persistence.data.DataWizard;
+import org.augugrumi.harbor.persistence.data.VirtualNetworkFunction;
+import org.augugrumi.harbor.routes.util.Errors;
 import org.augugrumi.harbor.util.ConfigManager;
 import org.slf4j.Logger;
-import routes.util.FileNameUtils;
 import routes.util.ResponseCreator;
 import spark.Request;
 import spark.Response;
 import spark.Route;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import static org.augugrumi.harbor.routes.util.ParamConstants.ID;
 
 /**
  * This route adds to the internal database a new Kubernetes YAML. Note that you have to provide an unique id to this
@@ -31,48 +32,23 @@ public class CreateVnfRoute implements Route {
      *         "result": "ok"
      *     }
      * </pre>
-     * when the operation is successful, otherwise if the id is already in use it returns: <pre>
+     * when the operation is successful, otherwise it returns: <pre>
      *     {
      *         "result": "error",
-     *         "reason": "A YAML with the same key already exists"
+     *         "reason": "Impossible to add the object in the database"
      *     }
      * </pre>
-     * @throws Exception when an internal error occurs
      */
     @Override
-    public Object handle(Request request, Response response) throws Exception {
+    public Object handle(Request request, Response response) {
 
         LOG.debug(this.getClass().getSimpleName() + " called");
-
-        // TODO create a parser family based on the type of data sent. For the moment, we just assume yaml is sent
-        final File yamlFolder = new File(ConfigManager.getConfig().getYamlStorageFolder());
-
-        if (!yamlFolder.exists()) {
-            if (!yamlFolder.mkdirs()) {
-                throw new IOException("Impossible to create YAML storage folder. Check your filesystem permissions");
-            }
-        }
-
-        final String filename = FileNameUtils.validateFileName(request.params(":id"));
-        final File yamlFile = new File(ConfigManager.getConfig().getYamlStorageFolder() + File.separator + filename);
-
-        ResponseCreator toSendBack;
-
-        // TODO we need to validate this YAML before adding it!!
-        if (yamlFile.createNewFile()) {
-
-            FileOutputStream yamlToSave = new FileOutputStream(yamlFile);
-            yamlToSave.write(request.bodyAsBytes());
-            yamlToSave.flush();
-            yamlToSave.close();
-
-            LOG.info("Creation for " + filename + " completed");
-
-            toSendBack = new ResponseCreator(ResponseCreator.ResponseType.OK);
+        Result<VirtualNetworkFunction> vnf = DataWizard.newVNF(request.params(ID), request.body());
+        if (vnf.isSuccessful() && vnf.getContent().isValid()) {
+            return new ResponseCreator(ResponseCreator.ResponseType.OK);
         } else {
-            toSendBack = new ResponseCreator(ResponseCreator.ResponseType.ERROR);
-            toSendBack.add(ResponseCreator.Fields.REASON, "A YAML with the same key already exists");
+            return new ResponseCreator(ResponseCreator.ResponseType.ERROR)
+                    .add(ResponseCreator.Fields.REASON, Errors.DB_ADD);
         }
-        return toSendBack;
     }
 }

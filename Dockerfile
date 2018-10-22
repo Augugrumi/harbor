@@ -41,7 +41,7 @@ LABEL description="Harbor Docker image"
 # -HARBOR_PORT: custom port in which harbor will run (the default is 80)
 # -HARBOR_API_CONFIG: path to your API configuration json
 # -HARBOR_KUBERNETES_URL: url to your Kubernetes API endpoint
-# -HARBOR_YAML_STORAGE_PATH: path to an empty folder where Harbor will create it's home for YAML storage
+# -HARBOR_STORAGE_PATH: path to an empty folder where Harbor will create it's home for YAML storage
 ENV HARBOR_API_CONFIG=api_sample.json
 
 RUN mkdir -p /config/

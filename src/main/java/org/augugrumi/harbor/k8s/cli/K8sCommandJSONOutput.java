@@ -1,6 +1,7 @@
-package k8s.cli;
+package org.augugrumi.harbor.k8s.cli;
 
-import k8s.K8sCommandOutput;
+import org.augugrumi.harbor.k8s.K8sCommandOutput;
+import org.augugrumi.harbor.k8s.K8sResultConverter;
 import org.json.JSONObject;
 
 /**
@@ -8,7 +9,7 @@ import org.json.JSONObject;
  * encapsulated inside a JSONObject
  *
  * @see K8sCommandOutput
- * @see k8s.K8sResultConverter
+ * @see K8sResultConverter
  */
 public class K8sCommandJSONOutput extends K8sCommandOutput<JSONObject> {
 

@@ -1,16 +1,22 @@
 package org.augugrumi.harbor.routes.vnfm;
 
-import k8s.K8sAPI;
-import k8s.K8sFactory;
+import org.augugrumi.harbor.k8s.K8sAPI;
+import org.augugrumi.harbor.k8s.K8sRetriever;
+import org.augugrumi.harbor.persistence.Persistence;
+import org.augugrumi.harbor.persistence.PersistenceRetriever;
+import org.augugrumi.harbor.persistence.Query;
+import org.augugrumi.harbor.persistence.data.VirtualNetworkFunction;
+import org.augugrumi.harbor.routes.util.RequestQuery;
+import org.augugrumi.harbor.routes.util.exceptions.NoSuchNetworkComponentException;
 import org.augugrumi.harbor.util.ConfigManager;
+import org.augugrumi.harbor.util.FileUtils;
 import org.slf4j.Logger;
-import routes.util.FileNameUtils;
 import routes.util.ResponseCreator;
 import spark.Request;
 import spark.Response;
 import spark.Route;
 
-import java.io.File;
+import static org.augugrumi.harbor.routes.util.ParamConstants.ID;
 
 /**
  * Route stopping the selected YAML id. Please note that if you've previously updated the YAML with another one, this
@@ -32,7 +38,7 @@ public class VnfStopperRoute implements Route {
      * <pre>
      *     {
      *         "result": "error",
-     *         "reason": "The requested YAML doesn't exist"
+     *         "reason": "The requested VNF doesn't exist"
      *     }
      * </pre>
      * @throws Exception an exception is thrown when an I/O operation reading the YAML configuration file fails,
@@ -42,21 +48,18 @@ public class VnfStopperRoute implements Route {
     public Object handle(Request request, Response response) throws Exception {
 
         LOG.debug(this.getClass().getSimpleName() + " called");
+        final Persistence db = PersistenceRetriever.getVnfDb();
+        final Query q = new RequestQuery(ID, request);
+        final K8sAPI api = K8sRetriever.getK8sAPI();
 
-        // TODO consider the case where the filename is ending with .yml
-        final String filename = FileNameUtils.validateFileName(request.params(":id"));
-        final File yamlFile = new File(ConfigManager.getConfig().getYamlStorageFolder() + File.separator + filename);
-
-        if (yamlFile.exists()) {
-
-            LOG.info("Getting new stop request for " + filename);
-
-            final K8sAPI api = K8sFactory.getCliAPI();
-            return api.deleteFromYaml(yamlFile.toURI().toURL(), res -> res.getAttachment().toString());
-        } else {
-            final ResponseCreator toSendBack = new ResponseCreator(ResponseCreator.ResponseType.ERROR);
-            toSendBack.add(ResponseCreator.Fields.REASON, "The requested YAML doesn't exist");
-            return toSendBack;
+        try {
+            VirtualNetworkFunction vnf = new VirtualNetworkFunction(request.params(ID));
+            return api.deleteFromYaml(
+                    FileUtils.createTmpFile("hrbr", ".yaml", vnf.getDefinition()).toURI().toURL(),
+                    res -> res.getAttachment().toString());
+        } catch (NoSuchNetworkComponentException e) {
+            return new ResponseCreator(ResponseCreator.ResponseType.ERROR)
+                    .add(ResponseCreator.Fields.REASON, e.getMessage());
         }
     }
 }

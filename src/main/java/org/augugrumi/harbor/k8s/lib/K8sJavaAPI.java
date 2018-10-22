@@ -1,8 +1,8 @@
-package k8s.lib;
+package org.augugrumi.harbor.k8s.lib;
 
-import k8s.K8sAPI;
-import k8s.K8sResultConverter;
-import k8s.exceptions.K8sException;
+import org.augugrumi.harbor.k8s.K8sAPI;
+import org.augugrumi.harbor.k8s.K8sResultConverter;
+import org.augugrumi.harbor.k8s.exceptions.K8sException;
 
 import java.net.URL;
 
@@ -26,6 +26,12 @@ public class K8sJavaAPI implements K8sAPI {
 
     @Override
     public Object deleteFromYaml(URL pathToFile, K8sResultConverter converter) throws K8sException {
+        return null;
+    }
+
+    @Override
+    public Object getServiceInfo(String serviceName, String namespace, K8sResultConverter converter)
+            throws K8sException {
         return null;
     }
 }

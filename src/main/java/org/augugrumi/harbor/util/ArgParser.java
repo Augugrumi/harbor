@@ -16,7 +16,8 @@ public class ArgParser {
     final private static String API_CONF_PATH_OPTION_SHORT = "f";
     final private static String PORT_OPTION_SHORT = "p";
     final private static String KUBERNETES_URL_SHORT = "k";
-    final private static String HARBOR_YAML_HOME_SHORT = "y";
+    final private static String HARBOR_STORAGE_HOME_SHORT = "h";
+    final private static String ROULETTE_URL_SHORT = "r";
 
     // Long options
     //final private static String API_CONF_PATH_OPTION_LONG = "file";
@@ -42,7 +43,9 @@ public class ArgParser {
         //ARGS_TO_PARSE.addOption(PORT_OPTION_LONG, true, "Port where Harbor should run");
         ARGS_TO_PARSE.addOption(KUBERNETES_URL_SHORT, true, "Set custom kubernetes API URL");
         //ARGS_TO_PARSE.addOption(HARBOR_YAML_HOME_LONG, true, "Set custom Harbor YAML home");
-        ARGS_TO_PARSE.addOption(HARBOR_YAML_HOME_SHORT, true, "Set custom Harbor YAML home");
+        ARGS_TO_PARSE.addOption(HARBOR_STORAGE_HOME_SHORT, true, "Set custom Harbor storage home");
+        //ARGS_TO_PARSE.addOption(ROULETTE_URL_SHORT, true, "Set custom Roulette API URL");
+        ARGS_TO_PARSE.addOption(ROULETTE_URL_SHORT, true, "Set custom Roulette API URL");
     }
 
     /**
@@ -62,18 +65,22 @@ public class ArgParser {
             ConfigManager.getConfig().setPort(Integer.parseInt(cmd.getOptionValue(PORT_OPTION_SHORT)));
             LOG.debug(PORT_OPTION_SHORT + " passed as argument. Value: " + cmd.getOptionValue(PORT_OPTION_SHORT));
         }
-        if (cmd.hasOption(KUBERNETES_URL_SHORT) && cmd.getOptionValue(KUBERNETES_URL_SHORT) != null) {
-            try {
-                ConfigManager.getConfig().setKubernetesAddress(cmd.getOptionValue(KUBERNETES_URL_SHORT));
-            } catch (MalformedURLException e) {
-                LOG.error(cmd.getOptionValue(KUBERNETES_URL_SHORT) + " is not a valid URL");
-                e.printStackTrace();
-                System.exit(1);
+        if (cmd.hasOption(HARBOR_STORAGE_HOME_SHORT) && cmd.getOptionValue(HARBOR_STORAGE_HOME_SHORT) != null) {
+            ConfigManager.getConfig().setStorageFolder(cmd.getOptionValue(HARBOR_STORAGE_HOME_SHORT));
+        }
+        try {
+            if (cmd.hasOption(KUBERNETES_URL_SHORT) && cmd.getOptionValue(KUBERNETES_URL_SHORT) != null) {
+                ConfigManager.getConfig().setKubernetesUrl(cmd.getOptionValue(KUBERNETES_URL_SHORT));
             }
             LOG.debug(KUBERNETES_URL_SHORT + " passed as argument. Value: " + cmd.getOptionValue(KUBERNETES_URL_SHORT));
-        }
-        if (cmd.hasOption(HARBOR_YAML_HOME_SHORT) && cmd.getOptionValue(HARBOR_YAML_HOME_SHORT) != null) {
-            ConfigManager.getConfig().setYAMLHome(cmd.getOptionValue(HARBOR_YAML_HOME_SHORT));
+            if (cmd.hasOption(ROULETTE_URL_SHORT) && cmd.getOptionValue(ROULETTE_URL_SHORT) != null) {
+                ConfigManager.getConfig().setRouletteUrl(cmd.getOptionValue(ROULETTE_URL_SHORT));
+            }
+            LOG.debug(ROULETTE_URL_SHORT + " passed as argument. Value: " + cmd.getOptionValue(ROULETTE_URL_SHORT));
+        } catch (MalformedURLException e) {
+            LOG.error("Error while parsing one of the two possible URLs");
+            e.printStackTrace();
+            System.exit(1);
         }
     }
 }

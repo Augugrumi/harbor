@@ -49,7 +49,7 @@ There are different flags that can be used to customize Harbor behaviour:
 - `-p`: specify the port where Harbor will run (default to 80)
 - `-k`: specify kubernetes api URL (default to localhost or, if it's
  running as a container in docker, to kubernetes environment variables)
-- `-y`: specify Harbor YAML home (default to `.harbor/yaml`)
+- `-h`: specify Harbor home (default to `.harbor/yaml`)
 
 ## Docker image
 There is also a docker image that you can use. Download it with:
@@ -69,7 +69,7 @@ These are:
 - `HARBOR_PORT`: custom port in which harbor will run
 - `HARBOR_API_CONFIG`: path to your API configuration json
 - `HARBOR_KUBERNETES_URL`: url to your Kubernetes API endpoint
-- `HARBOR_YAML_STORAGE_PATH`: path to an empty folder where Harbor will create it's home for YAML storage
+- `HARBOR_STORAGE_PATH`: path to an empty folder where Harbor will create it's home for YAML storage
 
 ### Building your own docker image
 The Dockerfile in the project uses _multi-stage docker builds_. To

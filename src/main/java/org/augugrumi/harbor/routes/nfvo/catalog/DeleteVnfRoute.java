@@ -1,14 +1,14 @@
 package org.augugrumi.harbor.routes.nfvo.catalog;
 
+import org.augugrumi.harbor.persistence.data.DataWizard;
+import org.augugrumi.harbor.routes.util.Errors;
+import org.augugrumi.harbor.routes.util.ParamConstants;
 import org.augugrumi.harbor.util.ConfigManager;
 import org.slf4j.Logger;
-import routes.util.FileNameUtils;
 import routes.util.ResponseCreator;
 import spark.Request;
 import spark.Response;
 import spark.Route;
-
-import java.io.File;
 
 /**
  * Deletes a YAML configuration given the right id. The operation fails if a bogus id is provided, or if the backend
@@ -31,39 +31,19 @@ public class DeleteVnfRoute implements Route {
      * when the operation is successful, otherwise if the backend is not able to delete the file it returns: <pre>
      *     {
      *         "result": "error",
-     *         "reason": "Failed to delete the file"
+     *         "reason": "Impossible to remove the object from the database"
      *     }
      * </pre>
-     * or, if the id doesn't exists: <pre>
-     *     {
-     *         "result": "error",
-     *         "reason": "The requested YAML doesn't exist"
-     *     }
-     * </pre>
-     * <p>
-     * This method never occur in an 500 Internal Error.
      */
     @Override
     public Object handle(Request request, Response response) {
 
         LOG.debug(this.getClass().getSimpleName() + " called");
-
-        final String filename = FileNameUtils.validateFileName(request.params(":id"));
-        final File yamlToDelete = new File(ConfigManager.getConfig().getYamlStorageFolder() + File.separator + filename);
-        final ResponseCreator toSendBack;
-
-        if (yamlToDelete.exists()) {
-            if (yamlToDelete.delete()) {
-                toSendBack = new ResponseCreator(ResponseCreator.ResponseType.OK);
-            } else {
-                toSendBack = new ResponseCreator(ResponseCreator.ResponseType.ERROR);
-                toSendBack.add(ResponseCreator.Fields.REASON, "Failed to delete the file");
-            }
+        if (DataWizard.deleteVNF(request.params(ParamConstants.ID))) {
+            return new ResponseCreator(ResponseCreator.ResponseType.OK);
         } else {
-            toSendBack = new ResponseCreator(ResponseCreator.ResponseType.ERROR);
-            toSendBack.add(ResponseCreator.Fields.REASON, "The requested YAML doesn't exist");
+            return new ResponseCreator(ResponseCreator.ResponseType.ERROR)
+                    .add(ResponseCreator.Fields.REASON, Errors.DB_REMOVE);
         }
-
-        return toSendBack;
     }
 }

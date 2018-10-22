@@ -1,4 +1,4 @@
-package k8s;
+package org.augugrumi.harbor.k8s;
 
 /**
  * Generic class containing the output of the Kubernetes command

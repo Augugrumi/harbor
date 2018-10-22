@@ -1,15 +1,16 @@
 package org.augugrumi.harbor.routes.nfvo.catalog;
 
+import org.augugrumi.harbor.persistence.Result;
+import org.augugrumi.harbor.persistence.data.DataWizard;
+import org.augugrumi.harbor.persistence.data.VirtualNetworkFunction;
+import org.augugrumi.harbor.routes.util.Errors;
+import org.augugrumi.harbor.routes.util.ParamConstants;
 import org.augugrumi.harbor.util.ConfigManager;
-import org.json.JSONObject;
 import org.slf4j.Logger;
-import routes.util.FileNameUtils;
+import routes.util.ResponseCreator;
 import spark.Request;
 import spark.Response;
 import spark.Route;
-
-import java.io.File;
-import java.io.FileInputStream;
 
 /**
  * This route returns the YAML definition of the given id
@@ -34,36 +35,21 @@ public class GetVnfRoute implements Route {
      * <pre>
      *     {
      *         "result": "error",
-     *         "reason": "The requested file doesn't exist"
+     *         "reason": "The requested element was not found"
      *     }
      * </pre>
-     * @throws Exception when the handler fails to read the YAML file a 500 Internal server error gets returned
      */
     @Override
-    public Object handle(Request request, Response response) throws Exception {
+    public Object handle(Request request, Response response) {
 
         LOG.debug(this.getClass().getSimpleName() + " called");
-
-        final JSONObject toSendBack = new JSONObject();
-        final String filename = FileNameUtils.validateFileName(request.params(":id"));
-        final File fileToReturn = new File(ConfigManager.getConfig().getYamlStorageFolder() + File.separator + filename);
-
-        if (fileToReturn.exists()) {
-            FileInputStream fis = new FileInputStream(fileToReturn);
-
-            StringBuilder fileRead = new StringBuilder();
-            int read;
-            while ((read = fis.read()) != -1) {
-                fileRead.append((char) read);
-            }
-
-            toSendBack.put("result", "ok");
-            toSendBack.put("yaml", fileRead.toString());
+        Result<VirtualNetworkFunction> vnfRes = DataWizard.getVNF(request.params(ParamConstants.ID));
+        if (vnfRes.isSuccessful()) {
+            return new ResponseCreator(ResponseCreator.ResponseType.OK)
+                    .add(ResponseCreator.Fields.CONTENT, vnfRes.getContent().toJson());
         } else {
-            toSendBack.put("result", "error");
-            toSendBack.put("reason", "The requested file doesn't exist");
+            return new ResponseCreator(ResponseCreator.ResponseType.ERROR)
+                    .add(ResponseCreator.Fields.REASON, Errors.NO_SUCH_ELEMENT);
         }
-
-        return toSendBack;
     }
 }
