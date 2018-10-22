@@ -25,42 +25,87 @@ metadata:
   namespace: kube-system
 data:
   api-diagram.json: |
-                   [
-                     {
-                       "name": "/vnf",
-                       "path": [
-                         {
-                           "name": "/launch/:id",
-                           "type": "get",
-                           "function": "routes.vnf.VnfLauncherRoute"
-                         },
-                         {
-                           "name": "/stop/:id",
-                           "type": "get",
-                           "function": "routes.vnf.VnfStopperRoute"
-                         },
-                         {
-                           "name": "/create/:id",
-                           "type": "post",
-                           "function": "routes.vnf.CreateVnfRoute"
-                         },
-                         {
-                           "name": "/delete/:id",
+    [
+       {
+       "name": "/debug",
+       "path": [
+           {
+           "name": "/vnf",
+           "path": [
+               {
+               "name": "/launch/:id",
+               "type": "get",
+               "function": "org.augugrumi.harbor.routes.vnfm.VnfLauncherRoute"
+               },
+               {
+               "name": "/stop/:id",
+               "type": "get",
+               "function": "org.augugrumi.harbor.routes.vnfm.VnfStopperRoute"
+               },
+               {
+               "name": "/update/:id",
+               "type": "post",
+               "function": "org.augugrumi.harbor.routes.nfvo.catalog.UpdateVnfRoute"
+               }
+           ]
+           }
+       ]
+       },
+       {
+       "name": "/vnf",
+       "path": [
+           {
+           "name": "/catalog/:id",
+           "type": "get",
+           "function": "org.augugrumi.harbor.routes.nfvo.catalog.GetVnfRoute"
+           },
+           {
+           "name": "/catalog/:id",
+           "type": "post",
+           "function": "org.augugrumi.harbor.routes.nfvo.catalog.CreateVnfRoute"
+           },
+           {
+           "name": "/catalog/:id",
                            "type": "delete",
-                           "function": "routes.vnf.DeleteVnfRoute"
-                         },
-                         {
-                           "name": "/update/:id",
+           "function": "org.augugrumi.harbor.routes.nfvo.catalog.DeleteVnfRoute"
+           },
+           {
+           "name": "/catalog/",
+           "type": "get",
+           "function": "org.augugrumi.harbor.routes.nfvo.catalog.ListVnfsRoute"
+           }
+       ]
+       },
+       {
+       "name": "/ns",
+       "path": [
+           {
+           "name": "/catalog/:id",
                            "type": "post",
-                           "function": "routes.vnf.UpdateVnfRoute"
-                         },
-                         {
-                           "name": "/get/:id",
+           "function": "org.augugrumi.harbor.routes.nfvo.catalog.CreateNSRoute"
+           },
+           {
+           "name": "/catalog/:id",
                            "type": "get",
-                           "function": "routes.vnf.GetVnfRoute"
-                         }
+           "function": "org.augugrumi.harbor.routes.nfvo.catalog.GetNSRoute"
+           },
+           {
+           "name": "/catalog/:id",
+           "type": "delete",
+           "function": "org.augugrumi.harbor.routes.nfvo.catalog.DeleteNSRoute"
+           },
+           {
+           "name": "/launch/:id",
+           "type": "get",
+           "function": "org.augugrumi.harbor.routes.nfvo.nsm.NsLauncherRoute"
+           },
+           {
+           "name": "/stop/:id",
+           "type": "get",
+           "function": "org.augugrumi.harbor.routes.nfvo.nsm.NsStopperRoute"
+           }
                        ]
-                     }
+       }
                    ]
 ---
 kind: Deployment
