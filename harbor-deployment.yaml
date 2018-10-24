@@ -22,6 +22,7 @@ kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
   name: harbor-storage
+  namespace: kube-system
 spec:
   accessModes:
   - ReadWriteOnce
@@ -140,7 +141,7 @@ spec:
     spec:
       containers:
         - name: harbor
-          image: augugrumi/harbor:kubernetes_integration
+          image: augugrumi/harbor
           imagePullPolicy: Always
           ports:
             - name: http
