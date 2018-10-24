@@ -87,7 +87,7 @@ public class ConfigManager {
                 if (System.getenv(HB_KUBERNETES) != null) {
                     this.kubernetesUrl = new URL(System.getenv(HB_KUBERNETES));
                 } else if (System.getenv(K8S_API_ENDPOINT) != null) {
-                    this.kubernetesUrl = new URL(System.getenv(K8S_API_ENDPOINT));
+                    this.kubernetesUrl = new URL("http://" + System.getenv(K8S_API_ENDPOINT));
                 } else {
                     this.kubernetesUrl = new URL(LOCALHOST);
                 }
