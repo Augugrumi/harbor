@@ -18,6 +18,18 @@ subjects:
     name: harbor-creator
     namespace: kube-system
 ---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: harbor-storage
+spec:
+  accessModes:
+  - ReadWriteOnce
+  volumeMode: Filesystem
+  resources:
+    requests:
+      storage: 1Gi
+---
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -111,13 +123,20 @@ spec:
           volumeMounts:
             - name: harbor-config
               mountPath: /config
+            - name: harbor-storage
+              mountPath: /data
           env:
             - name: HARBOR_API_CONFIG
               value: /config/api-diagram.json
+            - name: HARBOR_STORAGE_PATH
+              value: /data
       volumes:
         - name: harbor-config
           configMap:
             name: harbor-api-diagram
+        - name: harbor-storage
+          persistentVolumeClaim:
+            claimName: harbor-storage
 ---
 kind: Service
 apiVersion: v1
