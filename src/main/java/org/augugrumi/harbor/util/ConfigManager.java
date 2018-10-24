@@ -105,7 +105,7 @@ public class ConfigManager {
             }
 
             if (System.getenv(HB_STORAGE) != null) {
-                this.storageFolder = System.getenv(HB_STORAGE);
+                this.storageFolder = System.getenv(HB_STORAGE) + HB_HOME;
             } else {
                 this.storageFolder = System.getProperty("user.home") + HB_HOME;
             }
