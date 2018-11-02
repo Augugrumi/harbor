@@ -7,6 +7,7 @@ import org.augugrumi.harbor.persistence.Result;
 import org.augugrumi.harbor.persistence.exception.DbException;
 import org.augugrumi.harbor.persistence.query.SimpleQuery;
 import org.augugrumi.harbor.util.ConfigManager;
+import org.augugrumi.harbor.util.FileUtils;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 
@@ -62,12 +63,7 @@ public class FSPersistence implements Persistence {
 
         File toRead = new File(home.getAbsolutePath() + File.separator + q.getID());
         try (FileInputStream inputStream = new FileInputStream(toRead)) {
-            StringBuilder res = new StringBuilder();
-            int i;
-            while ((i = inputStream.read()) != -1) {
-                res.append((char) i);
-            }
-            return new Result<JSONObject>(true, new JSONObject(res.toString()));
+            return new Result<JSONObject>(true, new JSONObject(FileUtils.readFile(inputStream)));
         } catch (FileNotFoundException e) {
             throw new DbException("Impossible to found the file " + q.getID());
         } catch (IOException e) {

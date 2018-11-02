@@ -18,6 +18,7 @@ public class ArgParser {
     final private static String KUBERNETES_URL_SHORT = "k";
     final private static String HARBOR_STORAGE_HOME_SHORT = "h";
     final private static String ROULETTE_URL_SHORT = "r";
+    final private static String TOPOLOGY_PATH_OPTION_SHORT = "t";
 
     // Long options
     //final private static String API_CONF_PATH_OPTION_LONG = "file";
@@ -44,8 +45,10 @@ public class ArgParser {
         ARGS_TO_PARSE.addOption(KUBERNETES_URL_SHORT, true, "Set custom kubernetes API URL");
         //ARGS_TO_PARSE.addOption(HARBOR_YAML_HOME_LONG, true, "Set custom Harbor YAML home");
         ARGS_TO_PARSE.addOption(HARBOR_STORAGE_HOME_SHORT, true, "Set custom Harbor storage home");
-        //ARGS_TO_PARSE.addOption(ROULETTE_URL_SHORT, true, "Set custom Roulette API URL");
+        //ARGS_TO_PARSE.addOption(ROULETTE_URL_LONG, true, "Set custom Roulette API URL");
         ARGS_TO_PARSE.addOption(ROULETTE_URL_SHORT, true, "Set custom Roulette API URL");
+        //ARGS_TO_PARSE.addOption(TOPOLOGY_PATH_OPTION_LONG, true, "Path to topology directory");
+        ARGS_TO_PARSE.addOption(TOPOLOGY_PATH_OPTION_SHORT, true, "Path to topology directory");
     }
 
     /**
@@ -67,6 +70,7 @@ public class ArgParser {
         }
         if (cmd.hasOption(HARBOR_STORAGE_HOME_SHORT) && cmd.getOptionValue(HARBOR_STORAGE_HOME_SHORT) != null) {
             ConfigManager.getConfig().setStorageFolder(cmd.getOptionValue(HARBOR_STORAGE_HOME_SHORT));
+            LOG.debug(HARBOR_STORAGE_HOME_SHORT + " passed as argument. Value: " + cmd.getOptionValue(HARBOR_STORAGE_HOME_SHORT));
         }
         try {
             if (cmd.hasOption(KUBERNETES_URL_SHORT) && cmd.getOptionValue(KUBERNETES_URL_SHORT) != null) {
@@ -81,6 +85,10 @@ public class ArgParser {
             LOG.error("Error while parsing one of the two possible URLs");
             e.printStackTrace();
             System.exit(1);
+        }
+        if (cmd.hasOption(TOPOLOGY_PATH_OPTION_SHORT) && cmd.getOptionValue(TOPOLOGY_PATH_OPTION_SHORT) != null) {
+            ConfigManager.getConfig().setTopologyPath(cmd.getOptionValue(TOPOLOGY_PATH_OPTION_SHORT));
+            LOG.debug(TOPOLOGY_PATH_OPTION_SHORT + " passed as argument. Value: " + cmd.getOptionValue(TOPOLOGY_PATH_OPTION_SHORT));
         }
     }
 }

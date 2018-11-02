@@ -2,9 +2,10 @@ package org.augugrumi.harbor;
 
 import org.apache.commons.cli.ParseException;
 import org.augugrumi.dynamicapiloader.DynamicAPILoader;
-import org.slf4j.Logger;
+import org.augugrumi.harbor.orchestration.OrchestratorRetriever;
 import org.augugrumi.harbor.util.ArgParser;
 import org.augugrumi.harbor.util.ConfigManager;
+import org.slf4j.Logger;
 
 import java.io.IOException;
 
@@ -35,6 +36,8 @@ public class Main {
         if (ConfigManager.getConfig().isRunningInKubernetes()) {
             LOG.info("Detected Kubernetes environment");
         }
+
+        OrchestratorRetriever.getK8sOrchestrator().startUpCheck();
 
         port(ConfigManager.getConfig().getPort());
 
