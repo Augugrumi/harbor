@@ -19,7 +19,6 @@ public interface Orchestrator {
 
     interface Listener {
         void onComponentLaunched(Component c);
-
         void onComponentStopped(Component c);
     }
 }

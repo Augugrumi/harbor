@@ -139,4 +139,9 @@ public abstract class AbsComponent implements Component {
         String NO_CONFIG = "Impossible to load configuration for the component ";
         String CONFIG_IO = "Error while reading configuration for the component ";
     }
+
+    @Override
+    public String getComponentRole() {
+        return componentName;
+    }
 }

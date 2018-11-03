@@ -10,12 +10,29 @@ import java.util.Map;
 class K8sOrchestrator implements Orchestrator {
 
     private final Map<String, Component> components;
+    private static K8sOrchestrator ourInstance = null;
 
-    K8sOrchestrator() {
+    private K8sOrchestrator() {
         components = new HashMap<>();
         components.put(ComponentRole.ROUTE_CONTROLLER, ComponentFactory.getController());
         components.put(ComponentRole.EGRESS, ComponentFactory.getEgress());
         components.put(ComponentRole.INGRESS, ComponentFactory.getIngress());
+    }
+
+    /**
+     * Getter method to return object instance. Please note that the Singleton will be created lazily: in fact, it's
+     * not possible to instantiate the object during static time because the arguments and the environment variables
+     * have still to be parsed, thus creating invalid components configurations.
+     *
+     * @return a pointer to the Singleton, lazily created
+     * @see Component
+     */
+    static synchronized K8sOrchestrator getInstance() {
+        if (ourInstance == null) {
+            ourInstance = new K8sOrchestrator();
+        }
+
+        return ourInstance;
     }
 
     @Override
@@ -50,7 +67,7 @@ class K8sOrchestrator implements Orchestrator {
 
         // TODO should we sleep here waiting for all the components to go up? Find a way to manage this
         if (!isHealthy()) {
-            throw new StartUpException("Impossible to successfully start up alle the components");
+            throw new StartUpException("Impossible to successfully start up all the components");
         }
     }
 }

@@ -6,6 +6,6 @@ public class OrchestratorRetriever {
     }
 
     public static Orchestrator getK8sOrchestrator() {
-        return new K8sOrchestrator();
+        return K8sOrchestrator.getInstance();
     }
 }
