@@ -13,7 +13,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Future;
 
-public class RefCountingService implements Service, NetworkService.Listener {
+class RefCountingService implements Service, NetworkService.Listener {
 
     private final static Logger LOG = ConfigManager.getConfig().getApplicationLogger(RefCountingService.class);
     /*

@@ -30,6 +30,12 @@ class K8sOrchestrator implements Orchestrator {
     }
 
     @Override
+    public boolean isHealthy(String componentName) {
+        Component c = components.get(componentName);
+        return c.isDeployed() && c.isOk();
+    }
+
+    @Override
     public void startUpCheck() throws StartUpException {
         // TODO launch every non-healthy component
         for (final Map.Entry<String, Component> c : components.entrySet()) {
