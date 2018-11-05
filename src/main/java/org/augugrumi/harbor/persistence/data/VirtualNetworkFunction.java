@@ -118,7 +118,7 @@ public class VirtualNetworkFunction extends AbsNetworkData {
             }
             lineNumber++;
         }
-        if (previousLineInterruption != lines.length) {
+        if (previousLineInterruption != lineNumber - 1) {
             yamls.add(lineCopy(Arrays.copyOfRange(lines, previousLineInterruption + yamls.size(), lines.length)));
         }
         for (final String pieceOfYaml : yamls) {
