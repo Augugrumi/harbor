@@ -46,7 +46,6 @@ public class VirtualNetworkFunction extends AbsNetworkData {
             accumulate.append(line);
             accumulate.append('\n');
         }
-        LOG.info(accumulate.toString());
         return accumulate.toString();
     }
 

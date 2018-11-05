@@ -196,6 +196,7 @@ public class ConfigManager {
          */
         void setPort(int port) {
             this.port = port;
+            LOG.info("Set running port to: " + port);
         }
 
         /**

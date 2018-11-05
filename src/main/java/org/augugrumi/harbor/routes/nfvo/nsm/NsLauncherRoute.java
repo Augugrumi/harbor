@@ -67,7 +67,6 @@ public class NsLauncherRoute implements Route {
                         port = Integer.parseInt((String) k8s.getServiceInfo(item.getID(), K8sDefaultValue.NAMESPACE, res -> {
                             if (res.isSuccess()) {
                                 JSONObject jsonRes = (JSONObject) res.getAttachment();
-                                LOG.info(jsonRes.toString());
                                 final JSONObject content = new JSONObject(jsonRes.optString(
                                         ResponseCreator.Fields.CONTENT.toString().toLowerCase(),
                                         "{}"));
