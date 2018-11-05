@@ -118,7 +118,9 @@ public class VirtualNetworkFunction extends AbsNetworkData {
             }
             lineNumber++;
         }
-        yamls.add(lineCopy(Arrays.copyOfRange(lines, previousLineInterruption + yamls.size(), lines.length)));
+        if (previousLineInterruption != lines.length) {
+            yamls.add(lineCopy(Arrays.copyOfRange(lines, previousLineInterruption + yamls.size(), lines.length)));
+        }
         for (final String pieceOfYaml : yamls) {
             final JSONObject convertedFromYaml = new JSONObject((Map) yaml.load(pieceOfYaml));
             vnfYamls.put(convertedFromYaml);
