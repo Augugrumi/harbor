@@ -67,7 +67,11 @@ public class NsLauncherRoute implements Route {
                         port = Integer.parseInt((String) k8s.getServiceInfo(item.getID(), K8sDefaultValue.NAMESPACE, res -> {
                             if (res.isSuccess()) {
                                 JSONObject jsonRes = (JSONObject) res.getAttachment();
-                                final JSONObject content = new JSONObject(jsonRes.getString(ResponseCreator.Fields.CONTENT.toString().toLowerCase()));
+                                final JSONObject content = new JSONObject(jsonRes.optString(ResponseCreator.Fields.CONTENT.toString().toLowerCase(), ""));
+                                if (content.equals(new JSONObject(""))) {
+                                    // TODO handle the situation when an error occurs during the yaml deployment
+                                    throw new RuntimeException("Error while retrieving service info from Kubernetes");
+                                }
 
                                 return content.getJSONObject("spec")
                                         .getJSONArray("ports")
