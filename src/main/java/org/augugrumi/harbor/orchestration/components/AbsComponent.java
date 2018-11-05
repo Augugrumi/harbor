@@ -26,7 +26,7 @@ public abstract class AbsComponent implements Component {
 
     AbsComponent(String configName) {
         componentName = configName;
-        ok = true;
+        ok = false;
         deployed = false;
         try (FileInputStream fis = new FileInputStream(getComponentConfigByName(configName))) {
             yamlConfig = FileUtils.readFile(fis);
@@ -67,6 +67,8 @@ public abstract class AbsComponent implements Component {
     public boolean deploy() {
         try {
             boolean res = launch(yamlConfig);
+            // TODO check if the deployment is ok
+            ok = true;
             LISTENER.onComponentLaunched(this);
             return res;
         } catch (IOException e) {
@@ -109,6 +111,8 @@ public abstract class AbsComponent implements Component {
     public boolean destroy() {
         try {
             boolean res = stop(yamlConfig);
+            // TODO check if the deployment is actually stopped
+            ok = false;
             LISTENER.onComponentStopped(this);
             return res;
         } catch (IOException e) {
