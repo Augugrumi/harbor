@@ -111,7 +111,12 @@ public class VirtualNetworkFunction extends AbsNetworkData {
         int previousLineInterruption = 0;
         final List<String> yamls = new ArrayList<>();
         final String[] lines = vnfDefinition.split(System.lineSeparator());
-        for (final String line : lines) {
+        int i = 0;
+        if (lines[i].trim().equals(YAML_SEPARATOR)) {
+            i++;
+        }
+        for (; i < lines.length; i++) {
+            final String line = lines[i];
             if (line.trim().equals(YAML_SEPARATOR)) {
                 yamls.add(lineCopy(Arrays.copyOfRange(lines, previousLineInterruption + yamls.size(), lineNumber)));
                 previousLineInterruption = lineNumber;
