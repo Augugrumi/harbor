@@ -86,6 +86,7 @@ public abstract class AbsComponent implements Component {
     }
 
     File getComponentConfigByName(String configName) {
+        configName += ".yaml";
         for (File configuration : getAvailableComponentsConfigurations()) {
             if (configuration.getName().equalsIgnoreCase(configName)) {
                 return configuration;
