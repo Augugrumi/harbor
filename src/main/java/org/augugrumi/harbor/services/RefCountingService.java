@@ -48,7 +48,7 @@ class RefCountingService implements Service, NetworkService.Listener {
 
     private void vnfAddPrune(VirtualNetworkFunction vnf) {
         // need to add the vnf in the pruning queue, if it doesn't exist already!
-        if (VNFS_TO_DELETE.get(vnf) == null) { // we won't schedule two deletion for the same object
+        if (VNFS_TO_DELETE.get(vnf) == null) { // we won't schedule two deletions for the same object
             LOG.info("Scheduling pruning operation for VNF " + vnf.getID() + "...");
             VNFS_TO_DELETE.put(vnf, ServiceExecutor.getInstance().addService(() -> {
                 try {
