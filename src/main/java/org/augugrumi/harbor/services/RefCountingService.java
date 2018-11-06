@@ -61,7 +61,8 @@ class RefCountingService implements Service, NetworkService.Listener {
                                 LOG.info(res.getAttachment().toString());
                                 return res.getAttachment().toString();
                             });
-                    LOG.info("VNF " + vnf.getID() + " pruned from K8s after " + SLEEP_TIME_SECONDS + " of inactivity");
+                    LOG.info("VNF " + vnf.getID() + " pruned from K8s after " + SLEEP_TIME_SECONDS + "seconds " +
+                            " of inactivity");
                 } catch (IOException | InterruptedException e) {
                     e.printStackTrace();
                 }
