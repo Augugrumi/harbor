@@ -2,6 +2,7 @@ package org.augugrumi.harbor.persistence.fs;
 
 import org.augugrumi.harbor.persistence.Query;
 import org.augugrumi.harbor.util.ConfigManager;
+import org.augugrumi.harbor.util.FileUtils;
 import org.slf4j.Logger;
 
 import java.io.File;
@@ -32,16 +33,7 @@ public class FSQuery implements Query {
     public String getContent() {
 
         try (FileInputStream inputStream = new FileInputStream(file)) {
-
-            StringBuilder res = new StringBuilder();
-
-            int i;
-            while ((i = inputStream.read()) != -1) {
-                res.append((char) i);
-            }
-
-            return res.toString();
-
+            return FileUtils.readFile(inputStream);
         } catch (FileNotFoundException e) {
             LOG.warn("Error while reading " + file.getName() + ". File not found");
             e.printStackTrace();

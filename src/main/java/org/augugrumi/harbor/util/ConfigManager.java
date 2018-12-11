@@ -51,6 +51,7 @@ public class ConfigManager {
         final private static String HB_KUBERNETES = "HARBOR_KUBERNETES_URL";
         final private static String HB_STORAGE = "HARBOR_STORAGE_PATH";
         final private static String HB_ROULETTE = "HARBOR_ROULETTE_URL";
+        final private static String HB_TOPOLOGY = "HARBOR_INFRASTRUCTURE_TOPOLOGY";
         // End config keys
 
         // Default variables
@@ -65,6 +66,7 @@ public class ConfigManager {
         private URL kubernetesUrl;
         private String apiConfigPath;
         private String storageFolder;
+        private String topologyPath;
 
 
         /**
@@ -110,6 +112,18 @@ public class ConfigManager {
                 this.storageFolder = System.getProperty("user.home") + HB_HOME;
             }
             LOG.debug("Environment variable" + HB_STORAGE + " set to: " + this.storageFolder);
+
+            if (System.getenv(HB_TOPOLOGY) != null) {
+                this.topologyPath = System.getenv(HB_TOPOLOGY);
+            }
+            LOG.debug("Environment variable" + HB_TOPOLOGY + " set to: " + this.topologyPath);
+        }
+
+        /**
+         * Getter method to obtain the harbor topology configuration
+         */
+        public String getTopologyPath() {
+            return topologyPath;
         }
 
         /**
@@ -168,11 +182,21 @@ public class ConfigManager {
         }
 
         /**
+         * Setter method to change the path to the topology configuration
+         *
+         * @param topologyPath
+         */
+        void setTopologyPath(String topologyPath) {
+            this.topologyPath = topologyPath;
+        }
+
+        /**
          * Setter method to change port number
          * @param port a new port destination
          */
         void setPort(int port) {
             this.port = port;
+            LOG.info("Set running port to: " + port);
         }
 
         /**

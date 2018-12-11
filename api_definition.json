@@ -1,5 +1,15 @@
 [
   {
+    "name": "/system",
+    "path": [
+      {
+        "name": "/status/",
+        "type": "get",
+        "function": "org.augugrumi.harbor.routes.system.SystemStatusRoute"
+      }
+    ]
+  },
+  {
     "name": "/debug",
     "path": [
       {

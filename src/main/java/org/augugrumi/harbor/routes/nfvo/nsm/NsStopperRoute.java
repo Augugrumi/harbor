@@ -74,6 +74,8 @@ public class NsStopperRoute implements Route {
             deleteResponse.close();
         }
 
+        ResponseCreator responseCreator;
+
         if (erroneousRouletteUpdate.size() > 0) {
             // Errors happened during the roulette update
             final StringBuilder errors = new StringBuilder();
@@ -82,10 +84,13 @@ public class NsStopperRoute implements Route {
                         .append('\n');
             }
             final String reason = Errors.ROULETTE_UPDATE_NOT_COMPLETE + '\n' + errors.toString();
-            return new ResponseCreator(ResponseCreator.ResponseType.ERROR)
+            responseCreator = new ResponseCreator(ResponseCreator.ResponseType.ERROR)
                     .add(ResponseCreator.Fields.REASON, reason);
+        } else {
+            responseCreator = new ResponseCreator(ResponseCreator.ResponseType.OK);
         }
         ns.setStatus(NetworkService.STATUS_DOWN);
-        return new ResponseCreator(ResponseCreator.ResponseType.OK);
+
+        return responseCreator;
     }
 }

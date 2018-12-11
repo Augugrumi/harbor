@@ -67,12 +67,18 @@ public class NsLauncherRoute implements Route {
                         port = Integer.parseInt((String) k8s.getServiceInfo(item.getID(), K8sDefaultValue.NAMESPACE, res -> {
                             if (res.isSuccess()) {
                                 JSONObject jsonRes = (JSONObject) res.getAttachment();
-                                final JSONObject content = new JSONObject(jsonRes.getString(ResponseCreator.Fields.CONTENT.toString().toLowerCase()));
+                                final JSONObject content = new JSONObject(jsonRes.optString(
+                                        ResponseCreator.Fields.CONTENT.toString().toLowerCase(),
+                                        "{}"));
+                                if (content.equals(new JSONObject("{}"))) {
+                                    // TODO handle the situation when an error occurs during the yaml deployment
+                                    throw new RuntimeException("Error while retrieving service info from Kubernetes");
+                                }
 
                                 return content.getJSONObject("spec")
                                         .getJSONArray("ports")
                                         .getJSONObject(0)
-                                        .optString("nodePort", "-1");
+                                        .optString("port", "-1");
                             } else {
                                 return "-2";
                             }
@@ -87,7 +93,7 @@ public class NsLauncherRoute implements Route {
                         singleSI.put(Roulette.SI.PORT, port); // FIXME find out the port kubernetes gave to the service!
                         si.put(singleSI);
                     } else {
-                        throw new K8sException("Impossible to VNF port deployment");
+                        throw new K8sException("Impossible to get the VNF port for this deployment");
                     }
                 });
                 update.put(Roulette.SI_FIELD, si);

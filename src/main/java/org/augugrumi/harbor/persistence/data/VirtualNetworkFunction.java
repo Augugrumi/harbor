@@ -46,7 +46,6 @@ public class VirtualNetworkFunction extends AbsNetworkData {
             accumulate.append(line);
             accumulate.append('\n');
         }
-        LOG.info(accumulate.toString());
         return accumulate.toString();
     }
 
@@ -111,14 +110,21 @@ public class VirtualNetworkFunction extends AbsNetworkData {
         int previousLineInterruption = 0;
         final List<String> yamls = new ArrayList<>();
         final String[] lines = vnfDefinition.split(System.lineSeparator());
-        for (final String line : lines) {
+        int i = 0;
+        if (lines[i].trim().equals(YAML_SEPARATOR)) {
+            i++;
+        }
+        for (; i < lines.length; i++) {
+            final String line = lines[i];
             if (line.trim().equals(YAML_SEPARATOR)) {
                 yamls.add(lineCopy(Arrays.copyOfRange(lines, previousLineInterruption + yamls.size(), lineNumber)));
                 previousLineInterruption = lineNumber;
             }
             lineNumber++;
         }
-        yamls.add(lineCopy(Arrays.copyOfRange(lines, previousLineInterruption + yamls.size(), lines.length)));
+        if (previousLineInterruption != lineNumber - 1) {
+            yamls.add(lineCopy(Arrays.copyOfRange(lines, previousLineInterruption + yamls.size(), lines.length)));
+        }
         for (final String pieceOfYaml : yamls) {
             final JSONObject convertedFromYaml = new JSONObject((Map) yaml.load(pieceOfYaml));
             vnfYamls.put(convertedFromYaml);

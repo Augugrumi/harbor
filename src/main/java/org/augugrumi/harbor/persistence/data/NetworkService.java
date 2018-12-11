@@ -65,11 +65,12 @@ public class NetworkService extends AbsNetworkData {
         myselfJson.put(Fields.STATUS, STATUS_DOWN);
 
         // Write down chain ID
-        int currentMaxSPI = 0;
+        int currentMaxSPI = -1;
         Result<List<JSONObject>> jsonNSRes = getDB().get();
         if (jsonNSRes.isSuccessful()) {
             for (JSONObject ns : jsonNSRes.getContent()) {
-                int current = ns.optInt(Fields.CHAIN_ID, -1);
+                NetworkService toCompare = new NetworkService(ns.getString(Fields.ID));
+                int current = toCompare.getSPI();
                 if (current > currentMaxSPI) {
                     currentMaxSPI = current;
                 }
